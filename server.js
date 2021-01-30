@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
+ */
+
 const express = require('express');
 const bodyParser = require("body-parser");
 const handler = require('./build/worker/handler');

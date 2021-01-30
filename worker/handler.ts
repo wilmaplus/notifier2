@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
+ */
+
 import { v4 as uuid } from 'uuid';
 import { Worker } from 'worker_threads';
 export class Handler {

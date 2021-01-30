@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
+ */
+
 /**
  * Internal command for making JSON response
  * @param res Response object from express

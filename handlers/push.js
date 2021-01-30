@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
+ */
+
 const resUtils = require('../utils/response_utilities')
 const { Worker } = require('worker_threads');
 
