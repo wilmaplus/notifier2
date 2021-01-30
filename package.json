@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsc --project ./ && node tests/tests.js",
     "build": "tsc --project ./",
     "server": "tsc --project ./ && node server.js"
   },
