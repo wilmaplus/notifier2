@@ -1,7 +1,7 @@
 {
-  "name": "wilmaplus-notfier",
+  "name": "wilmaplus-notifier2",
   "version": "1.0.0",
-  "description": "",
+  "description": "Next Generation of Wilma Plus Notifier",
   "main": "build/server.js",
   "scripts": {
     "test": "tsc --project ./ && node build/tests/tests.js",
