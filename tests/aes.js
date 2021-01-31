@@ -3,6 +3,7 @@
  */
 
 const encryptor = require('../build/crypto/aes');
+const assert = require('assert');
 
 const KEY = "wilmaplus";
 const DATA = "this is a secret message";
@@ -25,16 +26,12 @@ async function testCipher() {
         await cipherAES.decrypt(data).then((bufferData) => {
             let stringData = bufferData.toString('utf-8');
             console.log("Decrypted data: "+stringData);
-            console.assert(stringData===DATA, "Data was invalid: %s", stringData);
-            if (stringData!==DATA) {
-                process.exit(-1);
-            }
+            assert.strictEqual(stringData, DATA, new Error("Data was invalid: %s", stringData))
         }).catch(error => {
             console.log(error);
             process.exit(-1);
         });
     }
-
 }
 
 module.exports = {
