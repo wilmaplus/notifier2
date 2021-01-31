@@ -4,8 +4,8 @@
 import * as crypto from "crypto"
 
 export class AESCipher {
-
     hashedKey: Buffer
+
     constructor(key: string) {
         this.hashedKey = AESCipher.hashKey(key);
     }

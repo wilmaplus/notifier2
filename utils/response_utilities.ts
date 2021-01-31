@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
  */
+import {Response} from "express";
 
 /**
  * Internal command for making JSON response
@@ -11,10 +12,6 @@
  * Author: @developerfromjokela
  * @returns {this}
  */
-function responseStatus(res, statusCode=200, status=true, extra={}) {
+export function responseStatus(res: Response, statusCode=200, status=true, extra={}) {
     return res.status(statusCode).json(Object.assign({'status': status}, extra))
 }
-
-module.exports = {
-    responseStatus
-};

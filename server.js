@@ -5,9 +5,9 @@
 const express = require('express');
 const bodyParser = require("body-parser");
 const handler = require('./build/worker/handler');
-const resUtils = require('./utils/response_utilities')
+const resUtils = require('./build/utils/response_utilities')
 
-const pushHandler = require('./handlers/push')
+const pushHandler = require('./build/handlers/push')
 app = express();
 app.use(bodyParser.json());
 // Outputs errors as JSON, not HTML
