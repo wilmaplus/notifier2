@@ -19,14 +19,9 @@ export class ApiError extends Error {
 
 export class WilmaApiClient {
 
-    wilmaUrl: string
-    wilmaSession: string
     httpClient: WilmaHttpClient
 
-
     constructor(wilmaUrl: string, wilmaSession: string) {
-        this.wilmaUrl = wilmaUrl;
-        this.wilmaSession = wilmaSession;
         this.httpClient = new WilmaHttpClient(wilmaSession, wilmaUrl);
     }
 
@@ -43,7 +38,6 @@ export class WilmaApiClient {
                     resolve((<WilmaError> response.body.error));
                     return;
                 }
-                resolve(false);
             }
             // No errors found
             resolve(false);
