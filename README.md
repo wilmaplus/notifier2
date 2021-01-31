@@ -14,4 +14,5 @@ Next Generation of Wilma Plus Notifier
 `npm run server`, builds, and then starts the server
 
 ## Tests
-`npm run test`
+- Copy file `tests/testconfig.example.json` to `tests/testconfig.json`, and fill in Wilma server details.
+- Run `npm run test`
