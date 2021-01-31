@@ -2,6 +2,7 @@
  * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
  */
 import * as crypto from "crypto"
+import {HashUtils} from "./hash";
 
 export class AESCipher {
     hashedKey: Buffer
@@ -12,9 +13,7 @@ export class AESCipher {
 
     private static hashKey(key: string): Buffer {
         let keyBuffer = Buffer.alloc(32);
-        crypto.createHash("sha256")
-            .update(Buffer.from(key))
-            .digest().copy(keyBuffer, 0,0, 32);
+        HashUtils.sha256DigestBuffer(key).copy(keyBuffer, 0,0, 32);
         return keyBuffer;
     }
 

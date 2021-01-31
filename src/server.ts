@@ -7,8 +7,12 @@ import bodyParser from "body-parser";
 import {responseStatus} from "./utils/response_utilities";
 import {Handler} from "./worker/handler";
 import {push} from "./handlers/push";
+import path from "path";
 
 const PORT = process.env.PORT || 3001;
+
+// Setting data folder
+(global as any).dataFolder = path.join((process.env.DATA_FOLDER || path.dirname(__dirname)), ".wplus_data");
 
 let app = express();
 app.use(bodyParser.json());
