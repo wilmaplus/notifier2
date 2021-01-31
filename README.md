@@ -12,3 +12,6 @@ Next Generation of Wilma Plus Notifier
 `npm run production`, builds production version to folder dist
 
 `npm run server`, builds, and then starts the server
+
+## Tests
+`npm run test`
