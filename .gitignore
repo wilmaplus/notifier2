@@ -5,3 +5,4 @@ node_modules
 tests/testconfig.json
 testconfig.json
 .wplus_data
+dist

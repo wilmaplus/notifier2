@@ -2,11 +2,12 @@
  * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
  */
 
-const wilmaClient = require('../build/client/wilma/apiclient');
-const testConfig = require('./testconfig.json');
 
-async function getExams() {
-    let client = new wilmaClient.WilmaApiClient(testConfig.server, testConfig.session);
+import {WilmaApiClient} from "../client/wilma/apiclient";
+const testConfig = require('../../tests/testconfig.json');
+
+export async function getExams() {
+    let client = new WilmaApiClient(testConfig.server, testConfig.session);
     await client.getExams().then(function (exams) {
         console.log("array: "+exams.length);
         console.log(exams[0]);
@@ -16,8 +17,8 @@ async function getExams() {
     });
 }
 
-async function getObservations() {
-    let client = new wilmaClient.WilmaApiClient(testConfig.server, testConfig.session);
+export async function getObservations() {
+    let client = new WilmaApiClient(testConfig.server, testConfig.session);
     await client.getObservations().then(function (obs) {
         console.log("array: "+obs.length);
         console.log(obs[0]);
@@ -27,13 +28,13 @@ async function getObservations() {
     });
 }
 
-async function getNews() {
-    let client = new wilmaClient.WilmaApiClient(testConfig.server, testConfig.session);
+export async function getNews() {
+    let client = new WilmaApiClient(testConfig.server, testConfig.session);
     await client.getNews().then(function (news) {
         console.log("array: "+news.length);
         console.log(news[0]);
         console.log("Fetching first one's content");
-        getNewsArticle(news[0].Id, false);
+        getNewsArticle((news[0] as any).Id, false);
         console.log("Fetching random, non-existent content");
         // This id should not exist ;)
         getNewsArticle(4454156145615613, true);
@@ -43,8 +44,8 @@ async function getNews() {
     });
 }
 
-async function getNewsArticle(id, nonExistent=false) {
-    let client = new wilmaClient.WilmaApiClient(testConfig.server, testConfig.session);
+export async function getNewsArticle(id: number, nonExistent=false) {
+    let client = new WilmaApiClient(testConfig.server, testConfig.session);
     await client.getNewsArticle(id).then(function (newsArticle) {
         if (newsArticle !== undefined) {
             if (nonExistent) {
@@ -63,10 +64,4 @@ async function getNewsArticle(id, nonExistent=false) {
         console.log(error);
         process.exit(-1);
     });
-}
-
-module.exports = {
-    getExams,
-    getObservations,
-    getNews
 }

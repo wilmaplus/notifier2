@@ -2,11 +2,12 @@
   "name": "wilmaplus-notfier",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "build/server.js",
   "scripts": {
-    "test": "tsc --project ./ && node tests/tests.js",
+    "test": "tsc --project ./ && node build/tests/tests.js",
     "build": "tsc --project ./",
-    "server": "tsc --project ./ && node server.js"
+    "production": "tsc --project ./tsconfig.production.json",
+    "server": "tsc --project ./ && node build/server.js"
   },
   "keywords": [],
   "author": "",

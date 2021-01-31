@@ -2,14 +2,13 @@
  * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
  */
 
-const encryptor = require('../build/crypto/aes');
-const assert = require('assert');
+import {AESCipher} from "../crypto/aes";
+const KEY: string = "wilmaplus";
+const DATA: string = "this is a secret message";
+import {strictEqual} from "assert";
 
-const KEY = "wilmaplus";
-const DATA = "this is a secret message";
-
-async function testCipher() {
-    let cipherAES = new encryptor.AESCipher(Buffer.from(KEY));
+export async function testCipher() {
+    let cipherAES = new AESCipher(KEY);
     console.log("Encrypting cipher");
     console.log("key: "+KEY);
     console.log("data: "+DATA);
@@ -26,14 +25,10 @@ async function testCipher() {
         await cipherAES.decrypt(data).then((bufferData) => {
             let stringData = bufferData.toString('utf-8');
             console.log("Decrypted data: "+stringData);
-            assert.strictEqual(stringData, DATA, new Error("Data was invalid: %s", stringData))
+            strictEqual(stringData, DATA, new Error("Data was invalid: "+ stringData));
         }).catch(error => {
             console.log(error);
             process.exit(-1);
         });
     }
-}
-
-module.exports = {
-    testCipher
 }
