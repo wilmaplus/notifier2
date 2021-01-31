@@ -18,7 +18,6 @@ export class ApiError extends Error {
 }
 
 export class WilmaApiClient {
-
     httpClient: WilmaHttpClient
 
     constructor(wilmaUrl: string, wilmaSession: string) {

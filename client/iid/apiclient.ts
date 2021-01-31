@@ -6,9 +6,7 @@ import {FCMHttpClient} from "../fcm/httpclient/http";
 import {FCMApiClient} from "../fcm/apiclient";
 
 export class IIDApiClient {
-
     httpClient: FCMHttpClient
-
 
     constructor(apiKey: string, baseUrl: string) {
         this.httpClient = new FCMHttpClient(apiKey, baseUrl);

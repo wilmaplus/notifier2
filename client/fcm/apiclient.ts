@@ -7,7 +7,6 @@ import {NeedleResponse} from "needle";
 import {FCMError} from "./types/error";
 
 export class FCMApiClient {
-
     httpClient: FCMHttpClient
 
     constructor(apiKey: string, baseUrl: string) {
