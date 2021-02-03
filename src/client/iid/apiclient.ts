@@ -2,14 +2,14 @@
  * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
  */
 
-import {FCMHttpClient} from "../fcm/httpclient/http";
 import {FCMApiClient} from "../fcm/apiclient";
+import {IIDHttpClient} from "./httpclient/http";
 
 export class IIDApiClient {
-    httpClient: FCMHttpClient
+    httpClient: IIDHttpClient
 
     constructor(apiKey: string, baseUrl: string) {
-        this.httpClient = new FCMHttpClient(apiKey, baseUrl);
+        this.httpClient = new IIDHttpClient(apiKey, baseUrl);
     }
 
     getPushKeyDetails(pushKey: string) {

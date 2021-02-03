@@ -6,7 +6,8 @@ import {AbstractRoutine} from "./abstract";
 import {WilmaApiClient} from "../client/wilma/apiclient";
 import {FCMApiClient} from "../client/fcm/apiclient";
 import {WilmaHttpClient} from "../client/wilma/httpclient/http";
-import {Exam, ExamSaveFile} from "./misc/types";
+import {Exam, ExamSaveFile, Query} from "./misc/types";
+import {sendNotificationQueries} from "./utils/query_runner";
 
 export class ExamsRoutine extends AbstractRoutine {
 
@@ -25,13 +26,13 @@ export class ExamsRoutine extends AbstractRoutine {
                     .catch(error => reject(error));
             }
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
-            let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey, (global as any).apiSettings.fcmUrl);
+            let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getExams().then(exams => {
                 this.getFile(WilmaHttpClient.getDomainFromURL(wilmaSession), userId).then((content) => {
                     if (content != null) {
                         let savedExams = (content as ExamSaveFile).exams;
                         // Query list
-                        let queryList = [];
+                        let queryList: Query[] = [];
                         // Iterating thru exams fetched from Wilma
                         for (let fetchedExam of exams) {
                             let found = false;
@@ -53,17 +54,21 @@ export class ExamsRoutine extends AbstractRoutine {
                             }
                             if (!found) {
                                 // New exam
-                                queryList.push({'type': 'notification', 'data': this.name, 'payload': (fetchedExam as object)});
+                                queryList.push(new Query('notification',  this.name, (fetchedExam as object)));
                             } else if (gradeChange) {
                                 // Grade changed
-                                queryList.push({'type': 'notification', 'data': this.name+"_grade", 'payload': (fetchedExam as object)});
+                                queryList.push(new Query('notification',  this.name+"_grade", (fetchedExam as object)));
                             }
                         }
                         // If query list is empty, complete this promise
                         if (queryList.length < 1)
                             complete(exams);
                         else {
-
+                            sendNotificationQueries(queryList, pushIds, fcmClient)
+                                .then(() => {
+                                    complete(exams);
+                                })
+                                .catch(error => reject(error));
                         }
                     } else
                         // If no content is saved, complete this promise

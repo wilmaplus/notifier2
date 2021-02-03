@@ -22,3 +22,16 @@ export class Exam {
     }
 
 }
+
+export class Query {
+    type: string
+    data: string
+    payload: any
+
+
+    constructor(type: string, data: string, payload: any) {
+        this.type = type;
+        this.data = data;
+        this.payload = payload;
+    }
+}

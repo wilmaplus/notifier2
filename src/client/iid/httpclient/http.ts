@@ -11,7 +11,7 @@ import {OutgoingHttpHeaders} from "http";
  * HTTP Client for requests to FCM
  * Rewrite from original notifier code (written in python, using requests library)
  */
-export class FCMHttpClient {
+export class IIDHttpClient {
 
     private apiKey: string
     private _baseUrl: string
