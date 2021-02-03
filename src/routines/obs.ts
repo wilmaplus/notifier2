@@ -6,8 +6,8 @@ import {AbstractRoutine} from "./abstract";
 
 export class ObservationsRoutine extends AbstractRoutine {
 
-    constructor(encryptionKey: string) {
-        super(encryptionKey, "obs");
+    constructor(encryptionKey: string, sessionId: Buffer) {
+        super(encryptionKey, sessionId, "obs");
     }
 
     check(wilmaServer: string, wilmaSession: string, pushIds: string[], userId: string) {

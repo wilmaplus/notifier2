@@ -30,12 +30,11 @@ export class WilmaHttpClient {
     }
 
     /**
-     * !! NOTE !! Added for future use, currently seems to have no use
      * Extracts domain name from URL
      * @param url
      * @private Domain name
      */
-    private static getDomainFromURL(url: string):string {
+    public static getDomainFromURL(url: string):string {
         let parsedUrl = new URL(url);
         return parsedUrl.hostname;
     }

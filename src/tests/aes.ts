@@ -12,8 +12,9 @@ export async function testCipher() {
     console.log("Encrypting cipher");
     console.log("key: "+KEY);
     console.log("data: "+DATA);
+    let sessId = AESCipher.generateSessionId();
     let data = null;
-    await cipherAES.encrypt(Buffer.from(DATA)).then((bufferData) => {
+    await cipherAES.encrypt(Buffer.from(DATA), sessId).then((bufferData) => {
         data = bufferData;
         console.log("Encrypted");
     }).catch(error => {
@@ -23,9 +24,12 @@ export async function testCipher() {
     if (data != null) {
         console.log("Decrypting cipher");
         await cipherAES.decrypt(data).then((bufferData) => {
-            let stringData = bufferData.toString('utf-8');
+            let stringData = bufferData.data.toString('utf-8');
             console.log("Decrypted data: "+stringData);
+            console.log("session id: ");
+            console.log(bufferData.sessionId);
             strictEqual(stringData, DATA, new Error("Data was invalid: "+ stringData));
+            strictEqual(bufferData.sessionId.toString(), sessId.toString(), "Session ID is invalid!");
         }).catch(error => {
             console.log(error);
             process.exit(-1);

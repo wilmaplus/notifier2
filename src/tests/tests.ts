@@ -6,12 +6,14 @@
 
 import {getExams, getNews, getObservations} from "./wilmaclient";
 import {testCipher} from "./aes";
+import {testIterator} from "./iterator";
 
 let testSubjects = [
     {name: 'wilmaclient', functionName: 'exams', func: getExams},
     {name: 'wilmaclient', functionName: 'obs', func: getObservations},
     {name: 'wilmaclient', functionName: 'news', func: getNews},
     {name: 'aes', functionName: 'testCipher', func: testCipher},
+    {name: 'iterator', functionName: 'testIterator', func: testIterator},
 ];
 
 async function test() {

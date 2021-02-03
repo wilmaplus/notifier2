@@ -6,6 +6,7 @@ import {WilmaHttpClient} from "./httpclient/http";
 import {NeedleResponse} from "needle";
 import {WilmaError} from "./types/wilma_error";
 import {Homepage} from "./types/homepage";
+import {Exam} from "../../routines/misc/types";
 
 export class ApiError extends Error {
     wilmaError: boolean|WilmaError
@@ -78,7 +79,7 @@ export class WilmaApiClient {
     }
 
     getExams() {
-        return new Promise<object[]>((resolve, reject) => {
+        return new Promise<Exam[]>((resolve, reject) => {
             this.checkSession().then(() => {
                 this.httpClient.authenticatedGetRequest("exams/index_json", (error, response) => {
                     if (error) {
