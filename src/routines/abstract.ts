@@ -21,8 +21,12 @@ export class AbstractRoutine {
             this.fileName = name;
     }
 
-    check(wilmaServer: string, wilmaSession: string, pushIds: string[], userId: string) {
+    check(wilmaServer: string, wilmaSession: string, pushIds: string[], userId: number, userType: number): Promise<void> {
         throw new Error("check method should be overridden! If you already did it, remove the super method");
+    }
+
+    getUserIdString(userId: number, userType: number) {
+        return userId+"_"+userType;
     }
 
     getFile(schoolIdentifier: string, userId: string): Promise<object|null> {

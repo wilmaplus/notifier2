@@ -15,11 +15,11 @@ export class ExamsRoutine extends AbstractRoutine {
         super(encryptionKey, sessionId, "exams");
     }
 
-    check(wilmaServer: string, wilmaSession: string, pushIds: string[], userId: string): Promise<void> {
+    check(wilmaServer: string, wilmaSession: string, pushIds: string[], userId: number, userType: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             // Completion function
             const complete = (exams: Exam[]) => {
-                this.saveFile(new ExamSaveFile(exams), WilmaHttpClient.getDomainFromURL(wilmaServer), userId).
+                this.saveFile(new ExamSaveFile(exams), WilmaHttpClient.getDomainFromURL(wilmaServer), this.getUserIdString(userId, userType)).
                 then(() => {
                     resolve()
                 })
@@ -28,7 +28,7 @@ export class ExamsRoutine extends AbstractRoutine {
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
             let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getExams().then(exams => {
-                this.getFile(WilmaHttpClient.getDomainFromURL(wilmaSession), userId).then((content) => {
+                this.getFile(WilmaHttpClient.getDomainFromURL(wilmaSession), this.getUserIdString(userId, userType)).then((content) => {
                     if (content != null) {
                         let savedExams = (content as ExamSaveFile).exams;
                         // Query list
@@ -54,10 +54,10 @@ export class ExamsRoutine extends AbstractRoutine {
                             }
                             if (!found) {
                                 // New exam
-                                queryList.push(new Query('notification',  this.name, (fetchedExam as object)));
+                                queryList.push(new Query('notification',  this.name, fetchedExam, userId, userType, wilmaServer));
                             } else if (gradeChange) {
                                 // Grade changed
-                                queryList.push(new Query('notification',  this.name+"_grade", (fetchedExam as object)));
+                                queryList.push(new Query('notification',  this.name+"_grade", fetchedExam, userId, userType, wilmaServer));
                             }
                         }
                         // If query list is empty, complete this promise
@@ -75,7 +75,6 @@ export class ExamsRoutine extends AbstractRoutine {
                         complete(exams);
                 }).catch(error => reject(error));
             }).catch(error => reject(error));
-        })
-
+        });
     }
 }

@@ -6,7 +6,7 @@ import {WilmaHttpClient} from "./httpclient/http";
 import {NeedleResponse} from "needle";
 import {WilmaError} from "./types/wilma_error";
 import {Homepage} from "./types/homepage";
-import {Exam} from "../../routines/misc/types";
+import {Exam, NewsArticle, Observation, ObservationsResponse} from "../../routines/misc/types";
 
 export class ApiError extends Error {
     wilmaError: boolean|WilmaError
@@ -100,7 +100,7 @@ export class WilmaApiClient {
     }
 
     getObservations() {
-        return new Promise<object[]>((resolve, reject) => {
+        return new Promise<ObservationsResponse>((resolve, reject) => {
             this.checkSession().then(() => {
                 this.httpClient.authenticatedGetRequest("attendance/index_json", (error, response) => {
                     if (error) {
@@ -112,7 +112,7 @@ export class WilmaApiClient {
                             if (error) {
                                 reject(new ApiError((<WilmaError> error).message, error));
                             } else {
-                                resolve(response.body.Observations || []);
+                                resolve(new ObservationsResponse((response.body.Observations || []), response.body.AllowSaveExcuse || false));
                             }
                         });
                 });
@@ -121,7 +121,7 @@ export class WilmaApiClient {
     }
 
     getNews() {
-        return new Promise<object[]>((resolve, reject) => {
+        return new Promise<NewsArticle[]>((resolve, reject) => {
             this.checkSession().then(() => {
                 this.httpClient.authenticatedGetRequest("news/index_json", (error, response) => {
                     if (error) {
