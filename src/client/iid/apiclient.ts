@@ -4,12 +4,36 @@
 
 import {FCMApiClient} from "../fcm/apiclient";
 import {IIDHttpClient} from "./httpclient/http";
+import {NeedleResponse} from "needle";
+import {FCMError} from "../fcm/types/error";
 
 export class IIDApiClient {
     httpClient: IIDHttpClient
 
     constructor(apiKey: string, baseUrl: string) {
         this.httpClient = new IIDHttpClient(apiKey, baseUrl);
+    }
+
+    /**
+     * Checks if request has an error
+     * @param response Needle response
+     * @private
+     */
+    public static checkForFCMErrors(response: NeedleResponse): Promise<boolean|Error> {
+        return new Promise<boolean|Error>((resolve, reject) => {
+            if (response.statusCode != 200) {
+                if (response.body.error) {
+                    // Resolving as error
+                    resolve(new Error((<FCMError> response.body.error).message || "Unknown"));
+                    return;
+                } else {
+                    reject(new Error("Unable to parse error code: "+response.statusCode));
+                    return;
+                }
+            }
+            // No errors found
+            resolve(false);
+        });
     }
 
     getPushKeyDetails(pushKey: string) {
@@ -27,7 +51,7 @@ export class IIDApiClient {
                     }
                     return;
                 }
-                FCMApiClient.checkForFCMErrors(response)
+                IIDApiClient.checkForFCMErrors(response)
                     .then(() => {
                         resolve(response.body);
                     }).catch((error) => reject(error));

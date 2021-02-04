@@ -20,8 +20,9 @@ export async function getExams() {
 export async function getObservations() {
     let client = new WilmaApiClient(testConfig.server, testConfig.session);
     await client.getObservations().then(function (obs) {
-        console.log("array: "+obs.length);
-        console.log(obs[0]);
+        console.log("array: "+obs.observations.length);
+        console.log("Allowed saving excuses: "+obs.allowedExcusesSaving);
+        console.log(obs.observations[0]);
     }).catch(function (error) {
         console.log(error);
         process.exit(-1);
