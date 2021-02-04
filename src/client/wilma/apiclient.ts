@@ -7,6 +7,7 @@ import {NeedleResponse} from "needle";
 import {WilmaError} from "./types/wilma_error";
 import {Homepage} from "./types/homepage";
 import {Exam, NewsArticle, Observation, ObservationsResponse} from "../../routines/misc/types";
+import {SessionCheck} from "./types/session";
 
 export class ApiError extends Error {
     wilmaError: boolean|WilmaError
@@ -48,7 +49,7 @@ export class WilmaApiClient {
      * Checks if current Wilma session is valid
      */
     checkSession() {
-        return new Promise<boolean>((resolve, reject) => {
+        return new Promise<SessionCheck>((resolve, reject) => {
             this.httpClient.authenticatedGetRequest("index_json", (error, response) => {
                 if (error) {
                     reject(error);
@@ -66,7 +67,7 @@ export class WilmaApiClient {
                             // Checking if PrimusId and Type is present. If not, that probably means that session's
                             // account is a "new" account type, which would require including role's slug ID to base URL.
                             if (homepage.PrimusId && homepage.Type) {
-                                resolve(true);
+                                resolve(new SessionCheck(true, homepage.PrimusId, homepage.Type));
                             } else {
                                 reject(new ApiError("Unable to get user information. Are you sure that you included Slug ID?"));
                             }

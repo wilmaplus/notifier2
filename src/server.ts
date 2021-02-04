@@ -8,9 +8,12 @@ import {responseStatus} from "./utils/response_utilities";
 import {Handler} from "./worker/handler";
 import {push} from "./handlers/push";
 import path from "path";
+const rateLimit = require("express-rate-limit");
 
 const PORT = process.env.PORT || 3001;
+const BEHIND_PROXY = process.env.PROXY || false;
 const FCM_KEY = process.env.FCM_KEY || null;
+const IID_PKG_NAME = process.env.IID_PKGNAME || null;
 const IID_KEY = process.env.IID_KEY || null;
 const IID_URL = process.env.FCM_URL || "https://iid.googleapis.com";
 
@@ -19,7 +22,7 @@ if (FCM_KEY === null || IID_KEY === null) {
 }
 
 // Config
-(global as any).apiSettings = {fcmKey: FCM_KEY, iidKey: IID_KEY, iidUrl: IID_URL};
+(global as any).apiSettings = {fcmKey: FCM_KEY, iidKey: IID_KEY, iidUrl: IID_URL, iidPackageName: IID_PKG_NAME};
 
 // Setting data folder
 (global as any).dataFolder = path.join((process.env.DATA_FOLDER || path.dirname(__dirname)), ".wplus_data");
@@ -31,6 +34,19 @@ const jsonErrorHandler = async (err: any, req: any, res: any) => {
     responseStatus(res, 500, false, {cause: err.toString()});
 }
 app.use(jsonErrorHandler);
+
+// Rate-limit
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100
+});
+
+// Behind proxy
+if (BEHIND_PROXY)
+    app.set('trust proxy', 1);
+
+// only apply to requests that begin with /api/
+app.use("/api/v1/", apiLimiter);
 
 const workerHandler = new Handler();
 ((global as any).workerHandler) = workerHandler;

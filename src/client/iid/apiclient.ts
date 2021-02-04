@@ -6,6 +6,7 @@ import {FCMApiClient} from "../fcm/apiclient";
 import {IIDHttpClient} from "./httpclient/http";
 import {NeedleResponse} from "needle";
 import {FCMError} from "../fcm/types/error";
+import {IIDInformation} from "./types/response";
 
 export class IIDApiClient {
     httpClient: IIDHttpClient
@@ -24,7 +25,7 @@ export class IIDApiClient {
             if (response.statusCode != 200) {
                 if (response.body.error) {
                     // Resolving as error
-                    resolve(new Error((<FCMError> response.body.error).message || "Unknown"));
+                    resolve(new Error((<FCMError> response.body.error).message || response.body.error || "Unknown"));
                     return;
                 } else {
                     reject(new Error("Unable to parse error code: "+response.statusCode));
@@ -37,7 +38,7 @@ export class IIDApiClient {
     }
 
     getPushKeyDetails(pushKey: string) {
-        return new Promise<object>((resolve, reject) => {
+        return new Promise<IIDInformation>((resolve, reject) => {
             this.httpClient.getRequest("iid/info/"+pushKey, (error, response) => {
                 if (error) {
                     reject(error);
