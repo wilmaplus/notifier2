@@ -24,8 +24,9 @@ export function responseStatus(res: Response, statusCode=200, status=true, extra
  * @param error Error (ApiError)
  */
 export function errorResponse(res: Response, statusCode=200, error: ApiError) {
+    console.log(error);
     let extra: {[k: string]: any} = {cause: error.message};
     if (error.wilmaError)
         extra.wilma = error.wilmaError
-    return res.status(statusCode).json(Object.assign({'status': status}, extra));
+    return res.status(statusCode).json(Object.assign({'status': false}, extra));
 }

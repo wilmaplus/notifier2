@@ -9,7 +9,7 @@ import {AbstractRoutine} from "./abstract";
  import {FCMApiClient} from "../client/fcm/apiclient";
  import {sendNotificationQueries} from "./utils/query_runner";
 
-export class News extends AbstractRoutine {
+export class NewsRoutine extends AbstractRoutine {
 
     constructor(encryptionKey: string, sessionId: Buffer) {
         super(encryptionKey, sessionId, "news");

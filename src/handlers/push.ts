@@ -8,6 +8,7 @@ import {Handler} from "../worker/handler";
 import {IIDApiClient} from "../client/iid/apiclient";
 import {WilmaApiClient} from "../client/wilma/apiclient";
 import {getWorkerId} from "../worker/utils/idcalc";
+import {Database} from "../db/db";
 const { Worker } = require('worker_threads');
 
 export function push(req: Request, res: Response) {
@@ -18,6 +19,7 @@ export function push(req: Request, res: Response) {
         let iidClient = new IIDApiClient(apiConfig.iidKey, apiConfig.iidUrl);
         let wilmaClient = new WilmaApiClient(req.body.server_url, req.body.session);
         let workerHandler = ((global as any).workerHandler as Handler);
+        let db = ((global as any).db as Database);
 
         wilmaClient.checkSession()
             .then(sessionInfo => {
@@ -35,9 +37,32 @@ export function push(req: Request, res: Response) {
                         getWorkerId(sessionInfo.userId, sessionInfo.userType, req.body.server_url)
                             .then(id => {
                                 if (!workerHandler.isWorkerRunning(id)) {
-                                    // TODO start
+                                    db.keyExists(req.body.iid_key, id, contains => {
+                                        if (contains) {
+                                            startWorkerThread(id, req.body.server_url, req.body.session, db);
+                                            responseStatus(res);
+                                        } else {
+                                            db.addPushKey(req.body.iid_key, id).then(() => {
+                                                startWorkerThread(id, req.body.server_url, req.body.session, db);
+                                                responseStatus(res);
+                                            }).catch(error => {
+                                                errorResponse(res, 500, error);
+                                            })
+                                        }
+                                    });
+
                                 } else {
-                                    // TODO check if push ID exists in DB (if not, add) and continue with successful response
+                                    db.keyExists(req.body.iid_key, id, contains => {
+                                        if (contains) {
+                                            responseStatus(res);
+                                        } else {
+                                            db.addPushKey(req.body.iid_key, id).then(() => {
+                                                responseStatus(res);
+                                            }).catch(error => {
+                                                errorResponse(res, 500, error);
+                                            })
+                                        }
+                                    });
                                 }
                             })
                             .catch(error => {
@@ -55,11 +80,23 @@ export function push(req: Request, res: Response) {
     }
 }
 
-function startWorkerThread() {
-    const worker = new Worker("./worker/notifier.js", {});
+const startWorkerThread = (id: string, serverUrl: string, session: string, db: Database) => {
+    let path = "./worker/notifier.js";
+    if ((global as any).debug)
+        path = "./build/worker/notifier.js";
+    const worker = new Worker(path, {
+        workerData: {
+            userId: id,
+            serverUrl: serverUrl,
+            session: session,
+            dbConfig: db.config
+        }
+    });
     worker.on('error', (err: any) => {
         console.log(err);
     });
-    const id = ((global as any).workerHandler as Handler).startNewWorker(worker);
+    worker.on('message', (msg: any) => {
+        console.log(msg);
+    });
     console.log("thread with id "+id+" started");
 }

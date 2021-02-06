@@ -10,11 +10,13 @@ import {v4} from "uuid";
 export class Database {
     dbSession: Sequelize
     models: {[key: string]: Model.ModelCtor<any>}
+    config: {[key: string]: any};
 
 
     constructor(dbname: string, username: string, password: string, host='localhost') {
         this.dbSession = openDBConnection(dbname, username, password, host);
         this.models = {}
+        this.config = {dbname: dbname, username: username, password: password, host: host};
     }
 
     async connect() {
@@ -33,13 +35,24 @@ export class Database {
         return this.models.pushKeys.create({id: v4(), key: key, userId: owner})
     }
 
-    getUserKeys(owner: string, callback: ([]) => void) {
+    getUserKeys(owner: string, callback: (item: any) => void) {
         this.models.pushKeys.findAll({
             where: {
                 userId: owner
             }
         }).then(function (data) {
-            callback((data === undefined || data.length < 1) ? undefined : data[0]);
+            callback((data === undefined || data.length < 1) ? [] : data);
+        });
+    }
+
+    keyExists(key: string, owner: string, callback: (contains: boolean) => void) {
+        this.models.pushKeys.findAll({
+            where: {
+                key: key,
+                userId: owner
+            }
+        }).then(function (data) {
+            callback(data === undefined ? false : data.length > 0);
         });
     }
 
@@ -51,5 +64,4 @@ export class Database {
             }
         })
     }
-
 }

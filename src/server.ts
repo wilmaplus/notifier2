@@ -11,6 +11,7 @@ import path from "path";
 import {Database} from "./db/db";
 const rateLimit = require("express-rate-limit");
 
+const DEBUG = process.env.DEBUG || false;
 const PORT = process.env.PORT || 3001;
 const BEHIND_PROXY = process.env.PROXY || false;
 const FCM_KEY = process.env.FCM_KEY || null;
@@ -30,6 +31,7 @@ require('console-stamp')(console, '[HH:MM:ss.l]');
 
 // Config
 (global as any).apiSettings = {fcmKey: FCM_KEY, iidKey: IID_KEY, iidUrl: IID_URL, iidPackageName: IID_PKG_NAME};
+(global as any).debug = DEBUG;
 
 // Setting data folder
 (global as any).dataFolder = path.join((process.env.DATA_FOLDER || path.dirname(__dirname)), ".wplus_data");
@@ -38,11 +40,6 @@ require('console-stamp')(console, '[HH:MM:ss.l]');
 let db = (global as any).db as Database;
 let app = express();
 app.use(bodyParser.json());
-// Outputs errors as JSON, not HTML
-const jsonErrorHandler = async (err: any, req: any, res: any) => {
-    responseStatus(res, 500, false, {cause: err.toString()});
-}
-app.use(jsonErrorHandler);
 
 // Rate-limit
 const apiLimiter = rateLimit({
@@ -60,16 +57,23 @@ app.use("/api/v1/", apiLimiter);
 const workerHandler = new Handler();
 ((global as any).workerHandler) = workerHandler;
 
-app.route('/api/v1/push').get(push);
+app.route('/api/v1/push').post(push);
 
 app.get('*', (req, res) => {
     res.status(404).json({'status': false, 'cause': "not found"});
 });
 
+// Outputs errors as JSON, not HTML
+const jsonErrorHandler = async (err: any, req: any, res: any, next: any) => {
+    responseStatus(res, 500, false, {cause: err.toString()});
+}
+app.use(jsonErrorHandler);
+
+
 console.log("Connecting to database");
 db.connect().then(() => {
-    setInterval(function () {
+    /*setInterval(function () {
         console.log(workerHandler.getRunningHandlerIDs())
-    }, 1000);
+    }, 1000);*/
     app.listen(PORT);
 });

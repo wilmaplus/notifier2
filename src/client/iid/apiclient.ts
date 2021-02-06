@@ -25,7 +25,7 @@ export class IIDApiClient {
             if (response.statusCode != 200) {
                 if (response.body.error) {
                     // Resolving as error
-                    resolve(new Error((<FCMError> response.body.error).message || response.body.error || "Unknown"));
+                    reject(new Error((<FCMError> response.body.error).message || response.body.error || "Unknown"));
                     return;
                 } else {
                     reject(new Error("Unable to parse error code: "+response.statusCode));
