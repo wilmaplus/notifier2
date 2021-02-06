@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
+ */
+
+import Model, {Sequelize} from "sequelize";
+import {openDBConnection} from "./controller";
+import {definePushKeys} from "./models/push";
+import {v4} from "uuid";
+
+export class Database {
+    dbSession: Sequelize
+    models: {[key: string]: Model.ModelCtor<any>}
+
+
+    constructor(dbname: string, username: string, password: string, host='localhost') {
+        this.dbSession = openDBConnection(dbname, username, password, host);
+        this.models = {}
+    }
+
+    async connect() {
+        try {
+            await this.dbSession.authenticate();
+            console.log('Database Connection has been established successfully.');
+            this.models.pushKeys = definePushKeys(this.dbSession);
+            await this.dbSession.sync();
+        } catch (error) {
+            console.error('Unable to connect to the database:', error);
+            process.exit(-1);
+        }
+    }
+
+    addPushKey(key: string, owner: string): Promise<any> {
+        return this.models.pushKeys.create({id: v4(), key: key, userId: owner})
+    }
+
+    getUserKeys(owner: string, callback: ([]) => void) {
+        this.models.pushKeys.findAll({
+            where: {
+                userId: owner
+            }
+        }).then(function (data) {
+            callback((data === undefined || data.length < 1) ? undefined : data[0]);
+        });
+    }
+
+    removePushKey(key: string, owner: string): Promise<any> {
+        return this.models.pushKeys.destroy({
+            where: {
+                key: key,
+                userId: owner
+            }
+        })
+    }
+
+}

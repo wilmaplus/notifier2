@@ -8,6 +8,7 @@ import {responseStatus} from "./utils/response_utilities";
 import {Handler} from "./worker/handler";
 import {push} from "./handlers/push";
 import path from "path";
+import {Database} from "./db/db";
 const rateLimit = require("express-rate-limit");
 
 const PORT = process.env.PORT || 3001;
@@ -16,10 +17,16 @@ const FCM_KEY = process.env.FCM_KEY || null;
 const IID_PKG_NAME = process.env.IID_PKGNAME || null;
 const IID_KEY = process.env.IID_KEY || null;
 const IID_URL = process.env.FCM_URL || "https://iid.googleapis.com";
+console.log(process.env.DBCONFIG);
+const DB_CONFIG = process.env.DBCONFIG || './dbconfig.json'
+const dbConfig = require(DB_CONFIG);
 
 if (FCM_KEY === null || IID_KEY === null) {
     throw new Error("FCM_KEY or IID_KEY not configured!");
 }
+
+// Setting logs to include timestamp
+require('console-stamp')(console, '[HH:MM:ss.l]');
 
 // Config
 (global as any).apiSettings = {fcmKey: FCM_KEY, iidKey: IID_KEY, iidUrl: IID_URL, iidPackageName: IID_PKG_NAME};
@@ -27,6 +34,8 @@ if (FCM_KEY === null || IID_KEY === null) {
 // Setting data folder
 (global as any).dataFolder = path.join((process.env.DATA_FOLDER || path.dirname(__dirname)), ".wplus_data");
 
+(global as any).db = new Database(dbConfig.dbname, dbConfig.username, dbConfig.password, dbConfig.host);
+let db = (global as any).db as Database;
 let app = express();
 app.use(bodyParser.json());
 // Outputs errors as JSON, not HTML
@@ -57,7 +66,10 @@ app.get('*', (req, res) => {
     res.status(404).json({'status': false, 'cause': "not found"});
 });
 
-setInterval(function () {
-    console.log(workerHandler.getRunningHandlerIDs())
-}, 1000);
-app.listen(PORT);
+console.log("Connecting to database");
+db.connect().then(() => {
+    setInterval(function () {
+        console.log(workerHandler.getRunningHandlerIDs())
+    }, 1000);
+    app.listen(PORT);
+});

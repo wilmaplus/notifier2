@@ -6,3 +6,5 @@ tests/testconfig.json
 testconfig.json
 .wplus_data
 dist
+dbconfig.json
+.env
