@@ -10,7 +10,7 @@ import {AESCipher} from "../crypto/aes";
 import {v4} from "uuid";
 import {AsyncIterator} from "../asynciterator/iterator";
 
-if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.dbConfig) {
+if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.dbConfig || !workerData.apiSettings) {
     console.log("required parameters not found!");
     process.exit(-1);
 }
@@ -19,6 +19,9 @@ const userId = workerData.userId;
 const serverUrl = workerData.serverUrl;
 const wilmaSession = workerData.session;
 const dbConfig = workerData.dbConfig;
+
+// Setting api settings
+(global as any).apiSettings = workerData.apiSettings;
 
 // Routine function
 const run = () => {
@@ -43,7 +46,7 @@ const run = () => {
                 }, routines, () => {
                     console.log("check done, waiting...");
                     setTimeout(run, 5000);
-                })
+                }).start();
             }).catch(err => {
                 console.log(err);
                 console.log("Unable to validate session, exiting");

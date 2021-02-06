@@ -28,7 +28,7 @@ export class ExamsRoutine extends AbstractRoutine {
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
             let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getExams().then(exams => {
-                this.getFile(WilmaHttpClient.getDomainFromURL(wilmaSession), this.getUserIdString(userId, userType)).then((content) => {
+                this.getFile(WilmaHttpClient.getDomainFromURL(wilmaServer), this.getUserIdString(userId, userType)).then((content) => {
                     if (content != null) {
                         let savedExams = (content as ExamSaveFile).exams;
                         // Query list

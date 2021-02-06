@@ -28,7 +28,7 @@ export class ObservationsRoutine extends AbstractRoutine {
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
             let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getObservations().then(observations => {
-                this.getFile(WilmaHttpClient.getDomainFromURL(wilmaSession), this.getUserIdString(userId, userType)).then((content) => {
+                this.getFile(WilmaHttpClient.getDomainFromURL(wilmaServer), this.getUserIdString(userId, userType)).then((content) => {
                     if (content != null) {
                         let savedObservations = (content as ObservationsSaveFile).observations;
                         // Query list

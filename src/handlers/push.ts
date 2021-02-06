@@ -89,7 +89,8 @@ const startWorkerThread = (id: string, serverUrl: string, session: string, db: D
             userId: id,
             serverUrl: serverUrl,
             session: session,
-            dbConfig: db.config
+            dbConfig: db.config,
+            apiSettings: (global as any).apiSettings
         }
     });
     worker.on('error', (err: any) => {

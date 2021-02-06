@@ -72,8 +72,8 @@ app.use(jsonErrorHandler);
 
 console.log("Connecting to database");
 db.connect().then(() => {
-    /*setInterval(function () {
+    setInterval(function () {
         console.log(workerHandler.getRunningHandlerIDs())
-    }, 1000);*/
+    }, 5000);
     app.listen(PORT);
 });
