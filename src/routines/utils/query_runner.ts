@@ -9,7 +9,7 @@ import {Query} from "../misc/types";
 export function sendNotificationQueries(queries: Query[], pushIds: string[], fcmApi: FCMApiClient): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         new AsyncIterator((item, iterator) => {
-            fcmApi.sendPush(pushIds, item)
+            FCMApiClient.sendPush(pushIds, item)
                 .then((result) => {
                     if (result.failureCount != result.successCount) {
                         console.log("Some devices failed to be sent: ");

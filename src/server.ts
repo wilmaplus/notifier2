@@ -13,6 +13,7 @@ import {remove} from "./handlers/remove";
 import {AsyncIterator} from "./asynciterator/iterator";
 import * as admin from "firebase-admin";
 import {FCMApiClient} from "./client/fcm/apiclient";
+import {IIDApiClient} from "./client/iid/apiclient";
 const rateLimit = require("express-rate-limit");
 
 const DEBUG = process.env.DEBUG || false;
@@ -80,24 +81,43 @@ admin.initializeApp({
 const checkWorkers = () => {
     db.getAllUserIDs(items => {
         new AsyncIterator((item, iterator) => {
-            if (!workerHandler.isWorkerRunning(item)) {
-                db.getUserKeys(item, keys => {
+            let uid = (item as any).userId;
+            if (!workerHandler.isWorkerRunning(uid)) {
+                db.getUserKeys(uid, keys => {
                     if (keys.length > 0) {
                         let keyMap: string[] = []; keys.forEach((key: { key: string; }) => {
                             keyMap.push(key.key);
                         });
-                        FCMApiClient.sendPush(keyMap, {refresh: true}, 240).then(() => {
+                        FCMApiClient.sendPush(keyMap, {refresh: "true", userId: uid}, 240).then((details) => {
                             iterator.nextItem();
                         }).catch(error => {
                             console.error(error);
-                        })
+                        });
                     } else {
                         iterator.nextItem();
                     }
                 });
             } else
                 iterator.nextItem();
-        }, items, () => {setTimeout(checkWorkers, 30000);}).start();
+        }, items, () => {console.log("checkWorkers finished");setTimeout(checkWorkers, 30000);}).start();
+    });
+}
+
+const checkKeys = () => {
+    let iidClient = new IIDApiClient((global as any).apiSettings.iidKey, (global as any).apiSettings.iidUrl)
+    db.getAllKeys(items => {
+        new AsyncIterator((item, iterator) => {
+            iidClient.getPushKeyDetails(item.key).then(() => {
+                // Valid key
+                iterator.nextItem()
+            }).catch(() => {
+                // Error while checking key, invalid key
+                db.removePushKey(item.key, item.userId).then(() => {iterator.nextItem()})
+                    .catch(err => {
+                        console.error(err);
+                    });
+            })
+        }, items, () => {console.log("checkKeys finished");setTimeout(checkKeys, 30000);}).start();
     });
 }
 
@@ -109,5 +129,6 @@ db.connect().then(() => {
     }, 5000);
     // Timeout for checking if all users' workers are running
     checkWorkers();
+    checkKeys();
     app.listen(PORT);
 });

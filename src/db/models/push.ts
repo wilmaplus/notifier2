@@ -26,7 +26,7 @@ export function definePushKeys(sequelize: Sequelize) {
     })
 }
 
-export class PushKeys {
+export class PushKey {
     id: string
     key: string
     userId: string

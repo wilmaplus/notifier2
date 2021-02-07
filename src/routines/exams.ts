@@ -8,7 +8,7 @@ import {FCMApiClient} from "../client/fcm/apiclient";
 import {WilmaHttpClient} from "../client/wilma/httpclient/http";
 import {Exam, ExamSaveFile, Query} from "./misc/types";
 import {sendNotificationQueries} from "./utils/query_runner";
-import {PushKeys} from "../db/models/push";
+import {PushKey} from "../db/models/push";
 
 export class ExamsRoutine extends AbstractRoutine {
     static publicName="exams"
@@ -17,7 +17,7 @@ export class ExamsRoutine extends AbstractRoutine {
         super(encryptionKey, sessionId, "exams");
     }
 
-    check(wilmaServer: string, wilmaSession: string, pushIds: PushKeys[], userId: number, userType: number): Promise<void> {
+    check(wilmaServer: string, wilmaSession: string, pushIds: PushKey[], userId: number, userType: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             // Completion function
             const complete = (exams: Exam[]) => {

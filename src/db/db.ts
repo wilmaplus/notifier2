@@ -4,7 +4,7 @@
 
 import Model, {Sequelize} from "sequelize";
 import {openDBConnection} from "./controller";
-import {definePushKeys} from "./models/push";
+import {definePushKeys, PushKey} from "./models/push";
 import {v4} from "uuid";
 import {getRoutineNames} from "../config/routines";
 
@@ -45,6 +45,16 @@ export class Database {
             callback((data === undefined || data.length < 1) ? [] : data);
         });
     }
+
+    getAllKeys(callback: (items: PushKey[]) => void) {
+        this.models.pushKeys.findAll({}).then(function (data) {
+            callback((data === undefined || data.length < 1) ? [] : data);
+        }).catch(err => {
+            console.error("gak");
+            console.error(err);
+        });
+    }
+
 
     keyExists(key: string, owner: string, callback: (contains: boolean) => void) {
         this.models.pushKeys.findAll({

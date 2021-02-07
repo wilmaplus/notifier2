@@ -8,7 +8,7 @@ import {WilmaHttpClient} from "../client/wilma/httpclient/http";
 import {WilmaApiClient} from "../client/wilma/apiclient";
 import {FCMApiClient} from "../client/fcm/apiclient";
 import {sendNotificationQueries} from "./utils/query_runner";
-import {PushKeys} from "../db/models/push";
+import {PushKey} from "../db/models/push";
 
 export class ObservationsRoutine extends AbstractRoutine {
     static publicName="observations"
@@ -17,7 +17,7 @@ export class ObservationsRoutine extends AbstractRoutine {
         super(encryptionKey, sessionId, "observations");
     }
 
-    check(wilmaServer: string, wilmaSession: string, pushIds: PushKeys[], userId: number, userType: number): Promise<void> {
+    check(wilmaServer: string, wilmaSession: string, pushIds: PushKey[], userId: number, userType: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             // Completion function
             const complete = (observations: Observation[]) => {

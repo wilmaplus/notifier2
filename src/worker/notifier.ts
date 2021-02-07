@@ -5,12 +5,13 @@
 import {workerData} from "worker_threads";
 import {Database} from "../db/db";
 import {WilmaApiClient} from "../client/wilma/apiclient";
-import {routines} from "../config/routines";
+import {getRoutineNames, routines} from "../config/routines";
 import {AESCipher} from "../crypto/aes";
 import {v4} from "uuid";
 import {AsyncIterator} from "../asynciterator/iterator";
 
 import * as admin from 'firebase-admin';
+import {Storage} from "../storage/storage";
 const wConsole = {log: (msg: string) => {if ((global as any).debug){console.log(msg)}}}
 
 if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.dbConfig || !workerData.apiSettings || !workerData.dataFolder) {
@@ -41,7 +42,17 @@ const run = () => {
     db.getUserKeys(userId, (keys) => {
         if (keys.length < 1) {
             wConsole.log("No keys, exiting");
-            setTimeout(() => {process.exit(0)}, 200);
+            new AsyncIterator((routine, iterator) => {
+                Storage.removeSavedData(routine, userId)
+                    .then(() => {
+                        iterator.nextItem();
+                    })
+                    .catch(error => {
+                        wConsole.log(error)
+                    });
+            }, getRoutineNames(), () => {
+                setTimeout(() => {process.exit(0)}, 200);
+            }).start();
         } else {
             wilmaClient.checkSession().then(sessionCheck => {
                 wConsole.log("Running routines");

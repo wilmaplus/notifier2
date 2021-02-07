@@ -3,7 +3,7 @@
  */
 
 import {Storage} from "../storage/storage";
-import {PushKeys} from "../db/models/push";
+import {PushKey} from "../db/models/push";
 
 export class AbstractRoutine {
 
@@ -23,7 +23,7 @@ export class AbstractRoutine {
             this.fileName = name;
     }
 
-    check(wilmaServer: string, wilmaSession: string, pushIds: PushKeys[], userId: number, userType: number): Promise<void> {
+    check(wilmaServer: string, wilmaSession: string, pushIds: PushKey[], userId: number, userType: number): Promise<void> {
         throw new Error("check method should be overridden! If you already did it, remove the super method");
     }
 
