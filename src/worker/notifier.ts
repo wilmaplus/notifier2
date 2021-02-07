@@ -33,9 +33,7 @@ admin.initializeApp({
 // Routine function
 const run = () => {
     db.getUserKeys(userId, (keys) => {
-        let keyMap = keys.map(function(key: { [x: string]: any; }) {
-            return key['key'];
-        });
+
         if (keys.length < 1) {
             console.log("No keys, exiting");
             setTimeout(() => {process.exit(0)}, 200);
@@ -43,7 +41,7 @@ const run = () => {
             wilmaClient.checkSession().then(sessionCheck => {
                 console.log("Running routines");
                 new AsyncIterator((item, iterator) => {
-                    new item(encryptionKey, sessionId).check(serverUrl, wilmaSession, keyMap, sessionCheck.userId, sessionCheck.userType).then(() => {
+                    new item(encryptionKey, sessionId).check(serverUrl, wilmaSession, keys, sessionCheck.userId, sessionCheck.userType).then(() => {
                         iterator.nextItem();
                     }).catch(err => {
                         console.log("error!");

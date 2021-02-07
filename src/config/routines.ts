@@ -8,3 +8,9 @@ import {ObservationsRoutine} from "../routines/obs";
 import {NewsRoutine} from "../routines/news";
 
 export var routines = [ExamsRoutine, ObservationsRoutine, NewsRoutine];
+
+export function getRoutineNames() {
+    return routines.map(function(key) {
+        return key.publicName;
+    });
+}

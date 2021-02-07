@@ -3,6 +3,7 @@
  */
 
 import {Storage} from "../storage/storage";
+import {PushKeys} from "../db/models/push";
 
 export class AbstractRoutine {
 
@@ -10,6 +11,7 @@ export class AbstractRoutine {
     sessionId: Buffer
     name: string
     fileName: string
+    static publicName="abstract"
 
     constructor(encryptionKey: string, sessionId: Buffer, name: string, fileName: string|null=null) {
         this.encryptionKey = encryptionKey;
@@ -21,7 +23,7 @@ export class AbstractRoutine {
             this.fileName = name;
     }
 
-    check(wilmaServer: string, wilmaSession: string, pushIds: string[], userId: number, userType: number): Promise<void> {
+    check(wilmaServer: string, wilmaSession: string, pushIds: PushKeys[], userId: number, userType: number): Promise<void> {
         throw new Error("check method should be overridden! If you already did it, remove the super method");
     }
 

@@ -8,14 +8,16 @@ import {FCMApiClient} from "../client/fcm/apiclient";
 import {WilmaHttpClient} from "../client/wilma/httpclient/http";
 import {Exam, ExamSaveFile, Query} from "./misc/types";
 import {sendNotificationQueries} from "./utils/query_runner";
+import {PushKeys} from "../db/models/push";
 
 export class ExamsRoutine extends AbstractRoutine {
+    static publicName="exams"
 
     constructor(encryptionKey: string, sessionId: Buffer) {
         super(encryptionKey, sessionId, "exams");
     }
 
-    check(wilmaServer: string, wilmaSession: string, pushIds: string[], userId: number, userType: number): Promise<void> {
+    check(wilmaServer: string, wilmaSession: string, pushIds: PushKeys[], userId: number, userType: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             // Completion function
             const complete = (exams: Exam[]) => {
@@ -25,6 +27,11 @@ export class ExamsRoutine extends AbstractRoutine {
                 })
                     .catch(error => reject(error));
             }
+            // Filtering only keys which allowed this routine
+            let keyMap: string[] = []; pushIds.forEach(item => {
+                if (item.allowedRoutines.includes(ExamsRoutine.publicName))
+                    keyMap.push(item.key);
+            });
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
             let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getExams().then(exams => {
@@ -64,7 +71,7 @@ export class ExamsRoutine extends AbstractRoutine {
                         if (queryList.length < 1)
                             complete(exams);
                         else {
-                            sendNotificationQueries(queryList, pushIds, fcmClient)
+                            sendNotificationQueries(queryList, keyMap, fcmClient)
                                 .then(() => {
                                     complete(exams);
                                 })

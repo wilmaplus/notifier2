@@ -8,14 +8,16 @@ import {WilmaHttpClient} from "../client/wilma/httpclient/http";
 import {WilmaApiClient} from "../client/wilma/apiclient";
 import {FCMApiClient} from "../client/fcm/apiclient";
 import {sendNotificationQueries} from "./utils/query_runner";
+import {PushKeys} from "../db/models/push";
 
 export class ObservationsRoutine extends AbstractRoutine {
+    static publicName="observations"
 
     constructor(encryptionKey: string, sessionId: Buffer) {
         super(encryptionKey, sessionId, "observations");
     }
 
-    check(wilmaServer: string, wilmaSession: string, pushIds: string[], userId: number, userType: number): Promise<void> {
+    check(wilmaServer: string, wilmaSession: string, pushIds: PushKeys[], userId: number, userType: number): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             // Completion function
             const complete = (observations: Observation[]) => {
@@ -25,6 +27,11 @@ export class ObservationsRoutine extends AbstractRoutine {
                 })
                     .catch(error => reject(error));
             }
+            // Filtering only keys which allowed this routine
+            let keyMap: string[] = []; pushIds.forEach(item => {
+                if (item.allowedRoutines.includes(ObservationsRoutine.publicName))
+                    keyMap.push(item.key);
+            });
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
             let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getObservations().then(observations => {
@@ -54,7 +61,7 @@ export class ObservationsRoutine extends AbstractRoutine {
                         if (queryList.length < 1)
                             complete(observations.observations);
                         else {
-                            sendNotificationQueries(queryList, pushIds, fcmClient)
+                            sendNotificationQueries(queryList, keyMap, fcmClient)
                                 .then(() => {
                                     complete(observations.observations);
                                 })

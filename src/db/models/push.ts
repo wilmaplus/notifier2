@@ -3,6 +3,7 @@
  */
 
 import {DataTypes, Sequelize} from "sequelize";
+import {getRoutineNames} from "../../config/routines";
 
 export function definePushKeys(sequelize: Sequelize) {
     return sequelize.define('push_keys', {
@@ -17,6 +18,25 @@ export function definePushKeys(sequelize: Sequelize) {
         },
         userId: {
             type: DataTypes.STRING
+        },
+        allowedRoutines: {
+            type: DataTypes.JSON,
+            defaultValue: getRoutineNames()
         }
     })
+}
+
+export class PushKeys {
+    id: string
+    key: string
+    userId: string
+    allowedRoutines: string[]
+
+
+    constructor(id: string, key: string, userId: string, allowedRoutines: string[]) {
+        this.id = id;
+        this.key = key;
+        this.userId = userId;
+        this.allowedRoutines = allowedRoutines;
+    }
 }
