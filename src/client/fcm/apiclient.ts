@@ -7,15 +7,13 @@ import {messaging} from "firebase-admin/lib/messaging";
 import MessagingDevicesResponse = messaging.MessagingDevicesResponse;
 
 export class FCMApiClient {
-    credential: string
 
-    constructor(credential: string) {
-        this.credential = credential;
+    constructor() {
     }
 
 
 
-    sendPush(recipients: string[], data: any, ttl:number=86400):Promise<MessagingDevicesResponse> {
+    static sendPush(recipients: string[], data: any, ttl:number=86400):Promise<MessagingDevicesResponse> {
         let messaging = admin.messaging();
         return messaging.sendToDevice(recipients, {data: data}, {timeToLive: ttl})
     }

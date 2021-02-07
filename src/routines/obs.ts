@@ -33,7 +33,7 @@ export class ObservationsRoutine extends AbstractRoutine {
                     keyMap.push(item.key);
             });
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
-            let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
+            let fcmClient = new FCMApiClient();
             wilmaClient.getObservations().then(observations => {
                 this.getFile(AbstractRoutine.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).then((content) => {
                     if (content != null) {

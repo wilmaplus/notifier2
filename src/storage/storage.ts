@@ -75,7 +75,7 @@ export class Storage {
 
     }
 
-    private static hash(content: string) {
+    static hash(content: string) {
         let hashDigest;
         // Option to change, for example, FS encryption with LVM limits file name size
         if (LONG_FILENAMES)

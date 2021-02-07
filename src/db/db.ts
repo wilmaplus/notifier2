@@ -66,6 +66,16 @@ export class Database {
         });
     }
 
+    getAllUserIDs(callback: (item: string[]) => void) {
+        this.models.pushKeys.findAll({
+            attributes: [
+                [Sequelize.fn('DISTINCT', Sequelize.col('userId')) ,'userId'],
+            ]
+        }).then(function (data) {
+            callback((data === undefined || data.length < 1) ? [] : data);
+        });
+    }
+
     removePushKey(key: string, owner: string): Promise<any> {
         return this.models.pushKeys.destroy({
             where: {

@@ -28,7 +28,7 @@ export class AbstractRoutine {
     }
 
     static getUserIdString(userId: number, userType: number, schoolIdentifier: string) {
-        return userId+"_"+userType+"_"+schoolIdentifier;
+        return userId+"."+userType+"."+schoolIdentifier;
     }
 
     getFile(userId: string): Promise<object|null> {

@@ -10,6 +10,9 @@ import {push} from "./handlers/push";
 import path from "path";
 import {Database} from "./db/db";
 import {remove} from "./handlers/remove";
+import {AsyncIterator} from "./asynciterator/iterator";
+import * as admin from "firebase-admin";
+import {FCMApiClient} from "./client/fcm/apiclient";
 const rateLimit = require("express-rate-limit");
 
 const DEBUG = process.env.DEBUG || false;
@@ -70,6 +73,34 @@ const jsonErrorHandler = async (err: any, req: any, res: any, next: any) => {
 }
 app.use(jsonErrorHandler);
 
+admin.initializeApp({
+    credential: admin.credential.cert(require((global as any).apiSettings.fcmKey))
+});
+
+const checkWorkers = () => {
+    db.getAllUserIDs(items => {
+        new AsyncIterator((item, iterator) => {
+            if (!workerHandler.isWorkerRunning(item)) {
+                db.getUserKeys(item, keys => {
+                    if (keys.length > 0) {
+                        let keyMap: string[] = []; keys.forEach((key: { key: string; }) => {
+                            keyMap.push(key.key);
+                        });
+                        FCMApiClient.sendPush(keyMap, {refresh: true}, 240).then(() => {
+                            iterator.nextItem();
+                        }).catch(error => {
+                            console.error(error);
+                        })
+                    } else {
+                        iterator.nextItem();
+                    }
+                });
+            } else
+                iterator.nextItem();
+        }, items, () => {setTimeout(checkWorkers, 30000);}).start();
+    });
+}
+
 
 console.log("Connecting to database");
 db.connect().then(() => {
@@ -77,8 +108,6 @@ db.connect().then(() => {
         console.log(workerHandler.getRunningHandlerIDs().length+" running worker(s)");
     }, 5000);
     // Timeout for checking if all users' workers are running
-    setTimeout(() => {
-        // TODO
-    }, 30000);
+    checkWorkers();
     app.listen(PORT);
 });
