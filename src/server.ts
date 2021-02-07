@@ -76,5 +76,9 @@ db.connect().then(() => {
     setInterval(function () {
         console.log(workerHandler.getRunningHandlerIDs().length+" running worker(s)");
     }, 5000);
+    // Timeout for checking if all users' workers are running
+    setTimeout(() => {
+        // TODO
+    }, 30000);
     app.listen(PORT);
 });
