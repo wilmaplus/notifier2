@@ -9,10 +9,8 @@ export function openDBConnection(dbname: string, username: string, password: str
         host: host,
         dialect: 'mysql',
         logging: false,
-        timezone: 'Europe/Helsinki',
         dialectOptions: {
-            charset: 'utf8',
-            collate: 'utf8_unicode_ci'
+            charset: 'utf8'
         }
     });
 }
