@@ -19,7 +19,7 @@ export class ExamsRoutine extends AbstractRoutine {
         return new Promise<void>((resolve, reject) => {
             // Completion function
             const complete = (exams: Exam[]) => {
-                this.saveFile(new ExamSaveFile(exams), WilmaHttpClient.getDomainFromURL(wilmaServer), this.getUserIdString(userId, userType)).
+                this.saveFile(new ExamSaveFile(exams), this.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).
                 then(() => {
                     resolve()
                 })
@@ -28,7 +28,7 @@ export class ExamsRoutine extends AbstractRoutine {
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
             let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getExams().then(exams => {
-                this.getFile(WilmaHttpClient.getDomainFromURL(wilmaServer), this.getUserIdString(userId, userType)).then((content) => {
+                this.getFile(this.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).then((content) => {
                     if (content != null) {
                         let savedExams = (content as ExamSaveFile).exams;
                         // Query list

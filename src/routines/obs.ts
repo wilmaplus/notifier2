@@ -19,7 +19,7 @@ export class ObservationsRoutine extends AbstractRoutine {
         return new Promise<void>((resolve, reject) => {
             // Completion function
             const complete = (observations: Observation[]) => {
-                this.saveFile(new ObservationsSaveFile(observations), WilmaHttpClient.getDomainFromURL(wilmaServer), this.getUserIdString(userId, userType)).
+                this.saveFile(new ObservationsSaveFile(observations), this.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).
                 then(() => {
                     resolve()
                 })
@@ -28,7 +28,7 @@ export class ObservationsRoutine extends AbstractRoutine {
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
             let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getObservations().then(observations => {
-                this.getFile(WilmaHttpClient.getDomainFromURL(wilmaServer), this.getUserIdString(userId, userType)).then((content) => {
+                this.getFile(this.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).then((content) => {
                     if (content != null) {
                         let savedObservations = (content as ObservationsSaveFile).observations;
                         // Query list

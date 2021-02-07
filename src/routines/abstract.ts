@@ -25,16 +25,16 @@ export class AbstractRoutine {
         throw new Error("check method should be overridden! If you already did it, remove the super method");
     }
 
-    getUserIdString(userId: number, userType: number) {
-        return userId+"_"+userType;
+    getUserIdString(userId: number, userType: number, schoolIdentifier: string) {
+        return userId+"_"+userType+"_"+schoolIdentifier;
     }
 
-    getFile(schoolIdentifier: string, userId: string): Promise<object|null> {
-        return Storage.getSavedData(this.encryptionKey, this.sessionId, this.fileName, schoolIdentifier, userId)
+    getFile(userId: string): Promise<object|null> {
+        return Storage.getSavedData(this.encryptionKey, this.sessionId, this.fileName, userId)
     }
 
-    saveFile(content: object, schoolIdentifier: string, userId: string): Promise<void> {
-        return Storage.saveData(content, this.encryptionKey, this.sessionId, this.fileName, schoolIdentifier, userId);
+    saveFile(content: object, userId: string): Promise<void> {
+        return Storage.saveData(content, this.encryptionKey, this.sessionId, this.fileName, userId);
     }
 
 }

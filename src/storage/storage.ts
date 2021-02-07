@@ -6,13 +6,13 @@ import {HashUtils} from "../crypto/hash";
 import * as fs from "fs";
 import path from "path";
 import {AESCipher} from "../crypto/aes";
-const LONG_FILENAMES = process.env.LONG_FILENAMES || true;
+const LONG_FILENAMES = process.env.LONG_FILENAMES;
 
 export class Storage {
 
-    static saveData(content: object, encryptionKey: string, sessionId: Buffer, fileName: string, schoolIdentifier: string, userId: string): Promise<void> {
+    static saveData(content: object, encryptionKey: string, sessionId: Buffer, fileName: string, userId: string): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            let filename = fileName+"_"+Storage.hash(schoolIdentifier)+"."+this.hash(userId)+".wplus";
+            let filename = fileName+"."+this.hash(userId)+".wplus";
             // Checking if save directory exists, if not, creating it recursively
             this.savePathCheck((global as any).dataFolder);
             // Deleting previous file if saved
@@ -21,29 +21,43 @@ export class Storage {
                 fs.unlinkSync(filename);
             // Encrypting content and writing to a file
             new AESCipher(encryptionKey).encrypt(Buffer.from(JSON.stringify(content)), sessionId).then((contentBuffer) => {
-                fs.writeFileSync(filePath, contentBuffer);
-                resolve();
+                try {
+                    fs.writeFileSync(filePath, contentBuffer);
+                    resolve();
+                } catch (e) {
+                    reject(e);
+                }
             }).catch(error => reject(error));
         });
 
     }
 
-    static getSavedData(encryptionKey: string, sessionId: Buffer, fileName: string, schoolIdentifier: string, userId: string): Promise<object|null> {
+    static getSavedData(encryptionKey: string, sessionId: Buffer, fileName: string, userId: string): Promise<object|null> {
         return new Promise<object|null>((resolve, reject) => {
-            let filename = fileName+"_"+Storage.hash(schoolIdentifier)+"."+this.hash(userId)+".wplus";
+            let filename = fileName+"."+this.hash(userId)+".wplus";
             // Checking if save directory exists, if not, creating it recursively
             this.savePathCheck((global as any).dataFolder);
             // Deleting previous file if saved
             let filePath = path.join((global as any).dataFolder, filename);
-            new AESCipher(encryptionKey).decrypt(fs.readFileSync(filePath))
-                .then((dataBuffer) => {
-                    if (dataBuffer.sessionId.compare(sessionId) == 0) {
-                        resolve(JSON.parse(dataBuffer.data.toString('utf-8')));
-                    } else {
-                        resolve(null);
-                    }
-                })
-                .catch(error => reject(error));
+            if (fs.existsSync(filePath)) {
+                let fileBuffer = fs.readFileSync(filePath);
+                // Checking if sessions match
+                AESCipher.getSessionBuffer(fileBuffer)
+                    .then(extractedId => {
+                        if (extractedId.compare(sessionId) == 0) {
+                            // Decrypting content
+                            new AESCipher(encryptionKey).decrypt(fileBuffer)
+                                .then((dataBuffer) => {
+                                    resolve(JSON.parse(dataBuffer.data.toString('utf-8')));
+                                })
+                                .catch(error => reject(error));
+                        } else
+                            resolve(null);
+                    })
+                    .catch(() => resolve(null))
+            } else {
+                resolve(null);
+            }
         });
     }
 

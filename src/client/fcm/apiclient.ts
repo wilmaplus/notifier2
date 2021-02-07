@@ -11,9 +11,6 @@ export class FCMApiClient {
 
     constructor(credential: string) {
         this.credential = credential;
-        admin.initializeApp({
-            credential: admin.credential.applicationDefault()
-        });
     }
 
 

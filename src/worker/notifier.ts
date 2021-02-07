@@ -9,8 +9,9 @@ import {routines} from "../config/routines";
 import {AESCipher} from "../crypto/aes";
 import {v4} from "uuid";
 import {AsyncIterator} from "../asynciterator/iterator";
+import * as admin from 'firebase-admin';
 
-if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.dbConfig || !workerData.apiSettings) {
+if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.dbConfig || !workerData.apiSettings || !workerData.dataFolder) {
     console.log("required parameters not found!");
     process.exit(-1);
 }
@@ -20,13 +21,18 @@ const serverUrl = workerData.serverUrl;
 const wilmaSession = workerData.session;
 const dbConfig = workerData.dbConfig;
 
-// Setting api settings
+process.env.LONG_FILENAMES = workerData.lFN;
+admin.initializeApp({
+    credential: admin.credential.applicationDefault()
+});
+
+// Setting global variables
 (global as any).apiSettings = workerData.apiSettings;
+(global as any).dataFolder = workerData.dataFolder;
 
 // Routine function
 const run = () => {
     db.getUserKeys(userId, (keys) => {
-        console.log(keys);
         let keyMap = keys.map(function(key: { [x: string]: any; }) {
             return key['key'];
         });
@@ -40,6 +46,7 @@ const run = () => {
                     new item(encryptionKey, sessionId).check(serverUrl, wilmaSession, keyMap, sessionCheck.userId, sessionCheck.userType).then(() => {
                         iterator.nextItem();
                     }).catch(err => {
+                        console.log("error!");
                         console.log(err);
                         setTimeout(() => {process.exit(0)}, 200);
                     })

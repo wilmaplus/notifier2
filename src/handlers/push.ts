@@ -90,7 +90,9 @@ const startWorkerThread = (id: string, serverUrl: string, session: string, db: D
             serverUrl: serverUrl,
             session: session,
             dbConfig: db.config,
-            apiSettings: (global as any).apiSettings
+            apiSettings: (global as any).apiSettings,
+            dataFolder: (global as any).dataFolder,
+            lFN: process.env.LONG_FILENAMES
         }
     });
     worker.on('error', (err: any) => {
@@ -99,5 +101,6 @@ const startWorkerThread = (id: string, serverUrl: string, session: string, db: D
     worker.on('message', (msg: any) => {
         console.log(msg);
     });
+    (global as any).workerHandler.startNewWorker(worker, id);
     console.log("thread with id "+id+" started");
 }

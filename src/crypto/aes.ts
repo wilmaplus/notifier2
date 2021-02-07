@@ -77,4 +77,12 @@ export class AESCipher {
             resolve(new DecryptResult(Buffer.concat([cipher.update(dataBuffer), cipher.final()]), sessionBuffer));
         });
     }
+
+    static getSessionBuffer(data: Buffer): Promise<Buffer> {
+        return new Promise<Buffer>(resolve => {
+            let sessionBuffer = Buffer.alloc(16);
+            data.copy(sessionBuffer, 0, 0, 16);
+            resolve(sessionBuffer);
+        });
+    }
 }
