@@ -133,7 +133,8 @@ const startWorkerThread = (id: string, serverUrl: string, session: string, db: D
             dbConfig: db.config,
             apiSettings: (global as any).apiSettings,
             dataFolder: (global as any).dataFolder,
-            lFN: process.env.LONG_FILENAMES
+            lFN: process.env.LONG_FILENAMES,
+            debug: (global as any).debug
         }
     });
     worker.on('error', (err: any) => {

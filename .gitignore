@@ -8,3 +8,4 @@ testconfig.json
 dist
 dbconfig.json
 .env
+*-firebase-adminsdk-*.json

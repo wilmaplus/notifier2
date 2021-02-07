@@ -71,16 +71,17 @@ export class Query {
     type: string
     data: string
     payload: any
-    user_id: number
-    user_type: number
+    user_id: string
+    user_type: string
     server: string
 
     constructor(type: string, data: string, payload: any, user_id: number, user_type: number, server: string) {
         this.type = type;
         this.data = data;
-        this.payload = payload;
-        this.user_id = user_id;
-        this.user_type = user_type;
+        // Making them to string, because FCM wants so
+        this.payload = JSON.stringify(payload);
+        this.user_id = JSON.stringify(user_id);
+        this.user_type = JSON.stringify(user_type);
         this.server = server;
     }
 }

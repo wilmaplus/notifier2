@@ -19,7 +19,6 @@ const FCM_KEY = process.env.FCM_KEY || null;
 const IID_PKG_NAME = process.env.IID_PKGNAME || null;
 const IID_KEY = process.env.IID_KEY || null;
 const IID_URL = process.env.FCM_URL || "https://iid.googleapis.com";
-console.log(process.env.DBCONFIG);
 const DB_CONFIG = process.env.DBCONFIG || './dbconfig.json'
 const dbConfig = require(DB_CONFIG);
 
