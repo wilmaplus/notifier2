@@ -9,6 +9,7 @@ import {Handler} from "./worker/handler";
 import {push} from "./handlers/push";
 import path from "path";
 import {Database} from "./db/db";
+import {remove} from "./handlers/remove";
 const rateLimit = require("express-rate-limit");
 
 const DEBUG = process.env.DEBUG || false;
@@ -58,6 +59,7 @@ const workerHandler = new Handler();
 ((global as any).workerHandler) = workerHandler;
 
 app.route('/api/v1/push').post(push);
+app.route('/api/v1/delete').post(remove);
 
 app.get('*', (req, res) => {
     res.status(404).json({'status': false, 'cause': "not found"});
