@@ -45,10 +45,10 @@ export class IIDApiClient {
                     return;
                 }
                 if (typeof response.body !== "object") {
-                    if (response.statusCode === 404) {
+                    if (response.statusCode === 404 || response.statusCode == 403) {
                         reject(new Error("Invalid push key!"));
                     } else {
-                        reject(new Error("Couldn't parse JSON response"));
+                        reject(new Error(response.body));
                     }
                     return;
                 }

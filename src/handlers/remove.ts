@@ -9,6 +9,11 @@ import {Handler} from "../worker/handler";
 import {Database} from "../db/db";
 import {errorResponse, responseStatus} from "../utils/response_utilities";
 import {getWorkerId} from "../worker/utils/idcalc";
+import {Storage} from "../storage/storage";
+import {getRoutineNames} from "../config/routines";
+import {AsyncIterator} from "../asynciterator/iterator";
+import {WilmaHttpClient} from "../client/wilma/httpclient/http";
+import {AbstractRoutine} from "../routines/abstract";
 
 export function remove(req: Request, res: Response) {
     if (req.body.session && req.body.server_url && req.body.iid_key) {
@@ -28,7 +33,17 @@ export function remove(req: Request, res: Response) {
                                         db.getUserKeys(id, items => {
                                             if (items.length < 1 && workerHandler.isWorkerRunning(id)) {
                                                 workerHandler.stopWorker(id);
-                                                responseStatus(res);
+                                                new AsyncIterator((routine, iterator) => {
+                                                    Storage.removeSavedData(routine, AbstractRoutine.getUserIdString(sessionInfo.userId, sessionInfo.userType, WilmaHttpClient.getDomainFromURL(req.body.server_url)))
+                                                        .then(() => {
+                                                            iterator.nextItem();
+                                                        })
+                                                        .catch(error => {
+                                                            errorResponse(res, 500, error);
+                                                        });
+                                                }, getRoutineNames(), () => {
+                                                    responseStatus(res);
+                                                }).start();
                                             } else {
                                                 responseStatus(res);
                                             }

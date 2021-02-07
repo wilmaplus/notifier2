@@ -61,9 +61,9 @@ export class Storage {
         });
     }
 
-    static removeSavedData(fileName: string, schoolIdentifier: string, userId: string) {
+    static removeSavedData(fileName: string, userId: string) {
         return new Promise<void>((resolve) => {
-            let filename = fileName+"_"+Storage.hash(schoolIdentifier)+"."+this.hash(userId)+".wplus";
+            let filename = fileName+"."+this.hash(userId)+".wplus";
             // Checking if save directory exists, if not, creating it recursively
             this.savePathCheck((global as any).dataFolder);
             // Deleting previous file if saved

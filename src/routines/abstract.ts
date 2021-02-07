@@ -27,7 +27,7 @@ export class AbstractRoutine {
         throw new Error("check method should be overridden! If you already did it, remove the super method");
     }
 
-    getUserIdString(userId: number, userType: number, schoolIdentifier: string) {
+    static getUserIdString(userId: number, userType: number, schoolIdentifier: string) {
         return userId+"_"+userType+"_"+schoolIdentifier;
     }
 

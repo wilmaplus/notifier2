@@ -21,7 +21,7 @@ export class NewsRoutine extends AbstractRoutine {
         return new Promise<void>((resolve, reject) => {
             // Completion function
             const complete = (news: NewsArticle[]) => {
-                this.saveFile(new NewsSaveFile(news), this.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).
+                this.saveFile(new NewsSaveFile(news), AbstractRoutine.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).
                 then(() => {
                     resolve()
                 })
@@ -35,7 +35,7 @@ export class NewsRoutine extends AbstractRoutine {
             let wilmaClient = new WilmaApiClient(wilmaServer, wilmaSession);
             let fcmClient = new FCMApiClient((global as any).apiSettings.fcmKey);
             wilmaClient.getNews().then(news => {
-                this.getFile(this.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).then((content) => {
+                this.getFile(AbstractRoutine.getUserIdString(userId, userType, WilmaHttpClient.getDomainFromURL(wilmaServer))).then((content) => {
                     if (content != null) {
                         let savedNews = (content as NewsSaveFile).news;
                         // Query list

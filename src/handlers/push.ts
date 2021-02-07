@@ -139,9 +139,11 @@ const startWorkerThread = (id: string, serverUrl: string, session: string, db: D
     worker.on('error', (err: any) => {
         console.log(err);
     });
-    worker.on('message', (msg: any) => {
-        console.log(msg);
-    });
+    if ((global as any).debug) {
+        worker.on('message', (msg: any) => {
+            console.log(msg);
+        });
+    }
     (global as any).workerHandler.startNewWorker(worker, id);
     console.log("thread with id "+id+" started");
 }

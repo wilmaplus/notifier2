@@ -24,7 +24,10 @@ export function responseStatus(res: Response, statusCode=200, status=true, extra
  * @param error Error (ApiError)
  */
 export function errorResponse(res: Response, statusCode=200, error: ApiError) {
-    console.log(error);
+    // Log errors for debugging purposes
+    if ((global as any).debug) {
+        console.log(error);
+    }
     let extra: {[k: string]: any} = {cause: error.message};
     if (error.wilmaError)
         extra.wilma = error.wilmaError
