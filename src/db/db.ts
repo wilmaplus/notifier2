@@ -6,6 +6,7 @@ import Model, {Sequelize} from "sequelize";
 import {openDBConnection} from "./controller";
 import {definePushKeys} from "./models/push";
 import {v4} from "uuid";
+import {getRoutineNames} from "../config/routines";
 
 export class Database {
     dbSession: Sequelize
@@ -31,8 +32,8 @@ export class Database {
         }
     }
 
-    addPushKey(key: string, owner: string): Promise<any> {
-        return this.models.pushKeys.create({id: v4(), key: key, userId: owner})
+    addPushKey(key: string, owner: string, allowedRoutines: string[]=getRoutineNames()): Promise<any> {
+        return this.models.pushKeys.create({id: v4(), key: key, userId: owner, allowedRoutines: allowedRoutines})
     }
 
     getUserKeys(owner: string, callback: (item: any) => void) {
@@ -53,6 +54,15 @@ export class Database {
             }
         }).then(function (data) {
             callback(data === undefined ? false : data.length > 0);
+        });
+    }
+
+    updateAllowedRoutines(key: string, owner: string, allowedRoutines: string[]): Promise<any> {
+        return this.models.pushKeys.update({allowedRoutines: allowedRoutines}, {
+            where: {
+                key: key,
+                userId: owner
+            }
         });
     }
 

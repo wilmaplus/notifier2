@@ -32,8 +32,8 @@ admin.initializeApp({
 
 // Routine function
 const run = () => {
+    console.log("Fetching keys");
     db.getUserKeys(userId, (keys) => {
-
         if (keys.length < 1) {
             console.log("No keys, exiting");
             setTimeout(() => {process.exit(0)}, 200);
@@ -50,6 +50,7 @@ const run = () => {
                     })
                 }, routines, () => {
                     console.log("check done, waiting...");
+                    // Setting timeout to run after 5 seconds
                     setTimeout(run, 5000);
                 }).start();
             }).catch(err => {
@@ -68,7 +69,6 @@ let encryptionKey = v4();
 let sessionId = AESCipher.generateSessionId();
 db.connect().then(() => {
     console.log("Connected to DB");
-    console.log("Fetching keys");
     run();
 })
 .catch(err => {

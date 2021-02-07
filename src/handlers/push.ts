@@ -6,9 +6,10 @@ import {Request, Response} from "express";
 import {responseStatus, errorResponse} from "../utils/response_utilities";
 import {Handler} from "../worker/handler";
 import {IIDApiClient} from "../client/iid/apiclient";
-import {WilmaApiClient} from "../client/wilma/apiclient";
+import {ApiError, WilmaApiClient} from "../client/wilma/apiclient";
 import {getWorkerId} from "../worker/utils/idcalc";
 import {Database} from "../db/db";
+import {getRoutineNames} from "../config/routines";
 const { Worker } = require('worker_threads');
 
 export function push(req: Request, res: Response) {
@@ -33,16 +34,47 @@ export function push(req: Request, res: Response) {
                                 return;
                             }
                         }
+                        let routinesAllowed = getRoutineNames();
+                        let customRoutinesDefined = false;
+                        if (req.body.routines && Array.isArray(routinesAllowed)) {
+                            if (req.body.routines.length > routinesAllowed.length) {
+                                errorResponse(res, 400, new ApiError("Allowed routines array exceeds its maximum length!"));
+                                return;
+                            } else if (req.body.routines.length < 1) {
+                                errorResponse(res, 400, new ApiError("Allowed routines array could not be empty!"));
+                                return;
+                            } else {
+                                for (let item of req.body.routines) {
+                                    if (!routinesAllowed.includes(item)) {
+                                        errorResponse(res, 400, new ApiError("Allowed routines array contains invalid value!"));
+                                        return;
+                                    }
+                                }
+                            }
+                            routinesAllowed = req.body.routines;
+                            customRoutinesDefined = true;
+                        }
                         // Get worker ID
                         getWorkerId(sessionInfo.userId, sessionInfo.userType, req.body.server_url)
                             .then(id => {
                                 if (!workerHandler.isWorkerRunning(id)) {
                                     db.keyExists(req.body.iid_key, id, contains => {
                                         if (contains) {
-                                            startWorkerThread(id, req.body.server_url, req.body.session, db);
-                                            responseStatus(res);
+                                            if (customRoutinesDefined) {
+                                                db.updateAllowedRoutines(req.body.iid_key, id, routinesAllowed)
+                                                    .then(() => {
+                                                        startWorkerThread(id, req.body.server_url, req.body.session, db);
+                                                        responseStatus(res);
+                                                    })
+                                                    .catch(error => {
+                                                        errorResponse(res, 500, error);
+                                                    });
+                                            } else {
+                                                startWorkerThread(id, req.body.server_url, req.body.session, db);
+                                                responseStatus(res);
+                                            }
                                         } else {
-                                            db.addPushKey(req.body.iid_key, id).then(() => {
+                                            db.addPushKey(req.body.iid_key, id, routinesAllowed).then(() => {
                                                 startWorkerThread(id, req.body.server_url, req.body.session, db);
                                                 responseStatus(res);
                                             }).catch(error => {
@@ -54,9 +86,18 @@ export function push(req: Request, res: Response) {
                                 } else {
                                     db.keyExists(req.body.iid_key, id, contains => {
                                         if (contains) {
-                                            responseStatus(res);
+                                            if (customRoutinesDefined) {
+                                                db.updateAllowedRoutines(req.body.iid_key, id, routinesAllowed)
+                                                    .then(() => {
+                                                        responseStatus(res);
+                                                    })
+                                                    .catch(error => {
+                                                        errorResponse(res, 500, error);
+                                                    });
+                                            } else
+                                                responseStatus(res);
                                         } else {
-                                            db.addPushKey(req.body.iid_key, id).then(() => {
+                                            db.addPushKey(req.body.iid_key, id, routinesAllowed).then(() => {
                                                 responseStatus(res);
                                             }).catch(error => {
                                                 errorResponse(res, 500, error);
