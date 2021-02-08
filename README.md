@@ -20,8 +20,17 @@ Next Generation of Wilma Plus Notifier
 
 ## Startup (Production)
 - Copy file `dbconfig.example.json` to `dbconfig.json` and fill in your database credentials.
-- If necessary, set your enviroment variables (supported variables list is [here](https://github.com/developerfromjokela/wilmaplus-notifier2/blob/master/docs/ENV.md))
+- If necessary, set your enviroment variables (supported variables list is [here](https://github.com/wilmaplus/notifier2/blob/master/docs/ENV.md))
 - run `node server.js`
+
+## REST API
+
+(Check the [Wiki](https://github.com/developerfromjokela/notifier2/wiki) for a detailed guide)
+Endpoints:
+
+*POST* `/api/v1/push` - Check for new items to push
+
+*POST* `/api/v1/delete` - Remove previously saved data from server
 
 ## Tests
 - Copy file `tests/testconfig.example.json` to `tests/testconfig.json`, and fill in Wilma server details.
