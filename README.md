@@ -28,9 +28,9 @@ Next Generation of Wilma Plus Notifier
 (Check the [Wiki](https://github.com/developerfromjokela/notifier2/wiki) for a detailed guide)
 Endpoints:
 
-*POST* `/api/v1/push` - Check for new items to push
+*POST* `/api/v1/push`   - Start notifier worker for your account
 
-*POST* `/api/v1/delete` - Remove previously saved data from server
+*POST* `/api/v1/delete` - Remove previously saved data from server and stop notifier worker
 
 ## Tests
 - Copy file `tests/testconfig.example.json` to `tests/testconfig.json`, and fill in Wilma server details.
