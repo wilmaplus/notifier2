@@ -11,7 +11,17 @@ Next Generation of Wilma Plus Notifier
 
 `npm run production`, builds production version to folder dist
 
-`npm run server`, builds, and then starts the server
+`npm run start`, builds, and then starts the server
+
+## Startup (debug)
+- Copy file `dbconfig.example.json` to `dbconfig.json` and fill in your database credentials.
+- If you want to start debugging server (`npm run start`), copy file `config.debug.example.env` to `.env`, and fill in your settings.
+- Run command `npm run start`
+
+## Startup (Production)
+- Copy file `dbconfig.example.json` to `dbconfig.json` and fill in your database credentials.
+- If necessary, set your enviroment variables (supported variables list is [here](https://github.com/developerfromjokela/wilmaplus-notifier2/blob/master/docs/ENV.md))
+- run `node server.js`
 
 ## Tests
 - Copy file `tests/testconfig.example.json` to `tests/testconfig.json`, and fill in Wilma server details.
