@@ -31,7 +31,7 @@ if (FCM_KEY === null || IID_KEY === null) {
 }
 
 // Setting logs to include timestamp
-require('console-stamp')(console, '[HH:MM:ss.l]');
+require('console-stamp')(console, 'HH:MM:ss.l');
 
 // Config
 (global as any).apiSettings = {fcmKey: FCM_KEY, iidKey: IID_KEY, iidUrl: IID_URL, iidPackageName: IID_PKG_NAME};
