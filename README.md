@@ -25,7 +25,7 @@ Next Generation of Wilma Plus Notifier
 
 ## REST API
 
-(Check the [Wiki](https://github.com/developerfromjokela/notifier2/wiki) for a detailed guide)
+(Check the [Wiki](https://github.com/wilmaplus/notifier2/wiki) for a detailed guide)
 Endpoints:
 
 *POST* `/api/v1/push`   - Start notifier worker for your account
