@@ -61,6 +61,10 @@ app.use("/api/v1/", apiLimiter);
 const workerHandler = new Handler();
 ((global as any).workerHandler) = workerHandler;
 
+app.route('/servercheck').get((req, res) => {
+    res.send("OK");
+});
+
 app.route('/api/v1/push').post(push);
 app.route('/api/v1/delete').post(remove);
 
