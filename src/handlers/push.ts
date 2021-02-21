@@ -82,7 +82,6 @@ export function push(req: Request, res: Response) {
                                             })
                                         }
                                     });
-
                                 } else {
                                     db.keyExists(req.body.iid_key, id, contains => {
                                         if (contains) {
@@ -130,7 +129,6 @@ const startWorkerThread = (id: string, serverUrl: string, session: string, db: D
             userId: id,
             serverUrl: serverUrl,
             session: session,
-            dbConfig: db.config,
             apiSettings: (global as any).apiSettings,
             dataFolder: (global as any).dataFolder,
             lFN: process.env.LONG_FILENAMES,
@@ -140,11 +138,31 @@ const startWorkerThread = (id: string, serverUrl: string, session: string, db: D
     worker.on('error', (err: any) => {
         console.log(err);
     });
-    if ((global as any).debug) {
-        worker.on('message', (msg: any) => {
-            console.log(msg);
-        });
-    }
+    worker.on('message', (msg: any) => {
+;
+        try {
+            let data = JSON.parse(msg);
+            if ((global as any).debug)
+                console.log(data.request);
+            switch (data.request) {
+                case 'userKeys': {
+                    let userId = data.params.userId;
+                    db.getUserKeys(userId, data => {
+                        worker.postMessage(JSON.stringify({type: 'userKeys', data: data}));
+                    });
+                    break;
+                }
+                default: {
+                    if ((global as any).debug)
+                        console.log("Got unrecognized command: "+data.request);
+                }
+            }
+        } catch (e) {
+            if ((global as any).debug)
+                console.error(e);
+        }
+    });
+
     (global as any).workerHandler.startNewWorker(worker, id);
     console.log("thread with id "+id+" started");
 }

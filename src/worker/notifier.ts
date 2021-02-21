@@ -2,8 +2,7 @@
  * Copyright (c) 2021 wilmaplus-notifier2, developed by @developerfromjokela, for Wilma Plus mobile app
  */
 
-import {workerData} from "worker_threads";
-import {Database} from "../db/db";
+import {parentPort, workerData} from "worker_threads";
 import {WilmaApiClient} from "../client/wilma/apiclient";
 import {getRoutineNames, routines} from "../config/routines";
 import {AESCipher} from "../crypto/aes";
@@ -14,7 +13,7 @@ import * as admin from 'firebase-admin';
 import {Storage} from "../storage/storage";
 const wConsole = {log: (msg: string) => {if ((global as any).debug){console.log(msg)}}}
 
-if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.dbConfig || !workerData.apiSettings || !workerData.dataFolder) {
+if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.apiSettings || !workerData.dataFolder) {
     console.log("required parameters not found!");
     process.exit(-1);
 }
@@ -22,7 +21,6 @@ if (!workerData.userId || !workerData.serverUrl || !workerData.session || !worke
 const userId = workerData.userId;
 const serverUrl = workerData.serverUrl;
 const wilmaSession = workerData.session;
-const dbConfig = workerData.dbConfig;
 
 process.env.LONG_FILENAMES = workerData.lFN;
 
@@ -39,7 +37,15 @@ admin.initializeApp({
 // Routine function
 const run = () => {
     wConsole.log("Fetching keys");
-    db.getUserKeys(userId, (keys) => {
+    // Fetching keys from master
+    parentPort?.postMessage(JSON.stringify({request: 'userKeys', params: {userId: userId}}));
+};
+
+parentPort?.on('message', (msgJson) => {
+    let msg = JSON.parse(msgJson);
+    wConsole.log("[msg] "+msg.type);
+    if (msg.type === 'userKeys') {
+        let keys = msg.data;
         if (keys.length < 1) {
             wConsole.log("No keys, exiting");
             new AsyncIterator((routine, iterator) => {
@@ -73,21 +79,14 @@ const run = () => {
                 wConsole.log(err);
                 wConsole.log("Unable to validate session, exiting");
                 setTimeout(() => {process.exit(0)}, 200);
-            })
+            });
         }
-    });
-};
+    } else if (msg.type === 'error') {
+        throw new Error(msg.data);
+    }
+});
 
-wConsole.log("connecting to DB");
-let db = new Database(dbConfig.dbname, dbConfig.username, dbConfig.password, dbConfig.host);
 let wilmaClient = new WilmaApiClient(serverUrl, wilmaSession);
 let encryptionKey = v4();
 let sessionId = AESCipher.generateSessionId();
-db.connect().then(() => {
-    wConsole.log("Connected to DB");
-    run();
-})
-.catch(err => {
-    console.log("Unable to connect to DB");
-    console.log(err);
-})
+run();
