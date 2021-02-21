@@ -17,6 +17,7 @@ import {IIDApiClient} from "./client/iid/apiclient";
 const rateLimit = require("express-rate-limit");
 
 const DEBUG = process.env.DEBUG || false;
+const DEV = process.env.DEV || false;
 const PORT = process.env.PORT || 3001;
 const BEHIND_PROXY = process.env.PROXY || false;
 const FCM_KEY = process.env.FCM_KEY || null;
@@ -36,6 +37,7 @@ require('console-stamp')(console, 'HH:MM:ss.l');
 // Config
 (global as any).apiSettings = {fcmKey: FCM_KEY, iidKey: IID_KEY, iidUrl: IID_URL, iidPackageName: IID_PKG_NAME};
 (global as any).debug = DEBUG;
+(global as any).dev = DEV;
 
 // Setting data folder
 (global as any).dataFolder = path.join((process.env.DATA_FOLDER || path.dirname(__dirname)), ".wplus_data");

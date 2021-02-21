@@ -122,7 +122,7 @@ export function push(req: Request, res: Response) {
 
 const startWorkerThread = (id: string, serverUrl: string, session: string, db: Database) => {
     let path = "./worker/notifier.js";
-    if ((global as any).debug)
+    if ((global as any).dev)
         path = "./build/worker/notifier.js";
     const worker = new Worker(path, {
         workerData: {
