@@ -13,7 +13,7 @@ import * as admin from 'firebase-admin';
 import {Storage} from "../storage/storage";
 const wConsole = {log: (msg: string) => {if ((global as any).debug){console.log(msg)}}}
 
-if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.apiSettings || !workerData.dataFolder) {
+if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.apiSettings || !workerData.dataFolder || !workerData.version) {
     console.log("required parameters not found!");
     process.exit(-1);
 }
@@ -28,6 +28,7 @@ process.env.LONG_FILENAMES = workerData.lFN;
 (global as any).apiSettings = workerData.apiSettings;
 (global as any).dataFolder = workerData.dataFolder;
 (global as any).debug = workerData.debug;
+(global as any).version = workerData.version;
 
 admin.initializeApp({
     credential: admin.credential.cert(require((global as any).apiSettings.fcmKey))

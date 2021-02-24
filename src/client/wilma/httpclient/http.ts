@@ -5,9 +5,9 @@
 import {URL} from "url";
 
 // @ts-ignore
-import {NeedleCallback} from "needle"
-const needle = require('needle-retry');
+import needle, {NeedleCallback, get, post} from "needle"
 import {OutgoingHttpHeaders} from "http";
+import * as retry from "retry"
 
 /**
  * HTTP Client for requests to Wilma
@@ -17,7 +17,7 @@ export class WilmaHttpClient {
 
     private _session: string
     private _baseUrl: string
-    private static userAgent: string = "WilmaPlusNotifier/2.0.0";
+    private static retryCount: number = 5;
 
     /**
      * Constructor for Wilma HTTP Client
@@ -30,6 +30,9 @@ export class WilmaHttpClient {
             baseUrl += "/";
         this._baseUrl = baseUrl;
         this._session = session;
+        needle.defaults({
+            user_agent: "WilmaPlusNotifier/"+(global as any).version
+        })
     }
 
 
@@ -49,7 +52,17 @@ export class WilmaHttpClient {
      * @param callback Callback for this request
      */
     getRequest(url: string, callback:NeedleCallback) {
-        needle.get(this._baseUrl+url, {needle: {headers: {'user-agent': WilmaHttpClient.userAgent}}}, callback);
+        let operation = retry.operation({
+            retries: WilmaHttpClient.retryCount
+        });
+        operation.attempt(() => {
+            get(this._baseUrl+url, (error, request, body) => {
+                if (operation.retry(error!=null ? error : undefined)) {
+                    return;
+                }
+                callback(error ? operation.mainError() : null, request, body);
+            });
+        });
     }
 
     /**
@@ -58,7 +71,17 @@ export class WilmaHttpClient {
      * @param callback Callback for this request
      */
     authenticatedGetRequest(url: string, callback:NeedleCallback) {
-        needle.get(this._baseUrl+url, {needle: {cookies: {"Wilma2SID": this._session}, headers: {'user-agent': WilmaHttpClient.userAgent}}}, callback);
+        let operation = retry.operation({
+            retries: WilmaHttpClient.retryCount
+        });
+        operation.attempt(() => {
+            get(this._baseUrl+url,{cookies: {"Wilma2SID": this._session}}, (error, request, body) => {
+                if (operation.retry(error!=null ? error : undefined)) {
+                    return;
+                }
+                callback(error ? operation.mainError() : null, request, body);
+            });
+        });
     }
 
     /**
@@ -70,7 +93,17 @@ export class WilmaHttpClient {
      * @param followRedirectCount How many times a redirect should be allowed (default is 5 times)
      */
     postRequest(url: string, data: any, callback:NeedleCallback, headers:OutgoingHttpHeaders, followRedirectCount:number=5) {
-        needle.post(url, data, {needle: {headers:{...headers, ...{'user-agent': WilmaHttpClient.userAgent}}, follow:followRedirectCount}}, callback);
+        let operation = retry.operation({
+            retries: WilmaHttpClient.retryCount
+        });
+        operation.attempt(() => {
+            post(url, data, {headers:headers, follow:followRedirectCount}, (error, request, body) => {
+                if (operation.retry(error!=null ? error : undefined)) {
+                    return;
+                }
+                callback(error ? operation.mainError() : null, request, body);
+            });
+        });
     }
 
     /**
@@ -82,7 +115,17 @@ export class WilmaHttpClient {
      * @param followRedirectCount How many times a redirect should be allowed (default is 5 times)
      */
     authenticatedPostRequest(url: string, data: any, callback:NeedleCallback, headers:OutgoingHttpHeaders, followRedirectCount:number=5) {
-        needle.post(url, data, {needle: {headers:{...headers, ...{'user-agent': WilmaHttpClient.userAgent}}, follow:followRedirectCount, cookies: {"Wilma2SID": this._session}}}, callback);
+        let operation = retry.operation({
+            retries: WilmaHttpClient.retryCount
+        });
+        operation.attempt(() => {
+            post(url, data, {headers:headers, follow:followRedirectCount, cookies: {"Wilma2SID": this._session}}, (error, request, body) => {
+                if (operation.retry(error!=null ? error : undefined)) {
+                    return;
+                }
+                callback(error ? operation.mainError() : null, request, body);
+            });
+        });
     }
 
     set session(value: string) {

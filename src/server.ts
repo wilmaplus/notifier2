@@ -11,6 +11,7 @@ import path from "path";
 import {Database} from "./db/db";
 import {remove} from "./handlers/remove";
 import {AsyncIterator} from "./asynciterator/iterator";
+// @ts-ignore
 import * as admin from "firebase-admin";
 import {FCMApiClient} from "./client/fcm/apiclient";
 import {IIDApiClient} from "./client/iid/apiclient";
@@ -38,6 +39,8 @@ require('console-stamp')(console, 'HH:MM:ss.l');
 (global as any).apiSettings = {fcmKey: FCM_KEY, iidKey: IID_KEY, iidUrl: IID_URL, iidPackageName: IID_PKG_NAME};
 (global as any).debug = DEBUG;
 (global as any).dev = DEV;
+(global as any).version = process.env.npm_package_version;
+console.log("Wilma Plus Notifier, version "+(global as any).version);
 
 // Setting data folder
 (global as any).dataFolder = path.join((process.env.DATA_FOLDER || path.dirname(__dirname)), ".wplus_data");
