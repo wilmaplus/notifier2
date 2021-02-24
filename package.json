@@ -21,6 +21,7 @@
     "firebase-admin": "^9.4.2",
     "mysql2": "^2.2.5",
     "needle": "^2.6.0",
+    "needle-retry": "^1.1.2",
     "reflect-metadata": "^0.1.13",
     "sequelize": "^6.5.0",
     "sequelize-typescript": "^2.0.0",

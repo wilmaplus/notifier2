@@ -6,7 +6,7 @@ import {WilmaHttpClient} from "./httpclient/http";
 import {NeedleResponse} from "needle";
 import {WilmaError} from "./types/wilma_error";
 import {Homepage} from "./types/homepage";
-import {Exam, NewsArticle, Observation, ObservationsResponse} from "../../routines/misc/types";
+import {Exam, NewsArticle, ObservationsResponse} from "../../routines/misc/types";
 import {SessionCheck} from "./types/session";
 
 export class ApiError extends Error {
@@ -50,7 +50,7 @@ export class WilmaApiClient {
      */
     checkSession() {
         return new Promise<SessionCheck>((resolve, reject) => {
-            this.httpClient.authenticatedGetRequest("index_json", (error, response) => {
+            this.httpClient.authenticatedGetRequest("index_json", (error:any, response:any) => {
                 if (error) {
                     reject(error);
                     return
@@ -82,7 +82,7 @@ export class WilmaApiClient {
     getExams() {
         return new Promise<Exam[]>((resolve, reject) => {
             this.checkSession().then(() => {
-                this.httpClient.authenticatedGetRequest("exams/index_json", (error, response) => {
+                this.httpClient.authenticatedGetRequest("exams/index_json", (error:any, response:any) => {
                     if (error) {
                         reject(error);
                         return;
@@ -103,7 +103,7 @@ export class WilmaApiClient {
     getObservations() {
         return new Promise<ObservationsResponse>((resolve, reject) => {
             this.checkSession().then(() => {
-                this.httpClient.authenticatedGetRequest("attendance/index_json", (error, response) => {
+                this.httpClient.authenticatedGetRequest("attendance/index_json", (error:any, response:any) => {
                     if (error) {
                         reject(error);
                         return;
@@ -124,7 +124,7 @@ export class WilmaApiClient {
     getNews() {
         return new Promise<NewsArticle[]>((resolve, reject) => {
             this.checkSession().then(() => {
-                this.httpClient.authenticatedGetRequest("news/index_json", (error, response) => {
+                this.httpClient.authenticatedGetRequest("news/index_json", (error:any, response:any) => {
                     if (error) {
                         reject(error);
                         return;
@@ -145,7 +145,7 @@ export class WilmaApiClient {
     getNewsArticle(id: number) {
         return new Promise<object[]>((resolve, reject) => {
             this.checkSession().then(() => {
-                this.httpClient.authenticatedGetRequest("news/index_json/"+id, (error, response) => {
+                this.httpClient.authenticatedGetRequest("news/index_json/"+id, (error: any, response: any) => {
                     if (error) {
                         reject(error);
                         return;

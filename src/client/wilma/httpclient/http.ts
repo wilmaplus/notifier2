@@ -4,7 +4,9 @@
 
 import {URL} from "url";
 
-import {get, NeedleCallback, post} from "needle"
+// @ts-ignore
+import {NeedleCallback} from "needle"
+const needle = require('needle-retry');
 import {OutgoingHttpHeaders} from "http";
 
 /**
@@ -15,6 +17,7 @@ export class WilmaHttpClient {
 
     private _session: string
     private _baseUrl: string
+    private static userAgent: string = "WilmaPlusNotifier/2.0.0";
 
     /**
      * Constructor for Wilma HTTP Client
@@ -28,6 +31,7 @@ export class WilmaHttpClient {
         this._baseUrl = baseUrl;
         this._session = session;
     }
+
 
     /**
      * Extracts domain name from URL
@@ -45,7 +49,7 @@ export class WilmaHttpClient {
      * @param callback Callback for this request
      */
     getRequest(url: string, callback:NeedleCallback) {
-        get(this._baseUrl+url,callback);
+        needle.get(this._baseUrl+url, {needle: {headers: {'user-agent': WilmaHttpClient.userAgent}}}, callback);
     }
 
     /**
@@ -54,7 +58,7 @@ export class WilmaHttpClient {
      * @param callback Callback for this request
      */
     authenticatedGetRequest(url: string, callback:NeedleCallback) {
-        get(this._baseUrl+url, {cookies: {"Wilma2SID": this._session}}, callback);
+        needle.get(this._baseUrl+url, {needle: {cookies: {"Wilma2SID": this._session}, headers: {'user-agent': WilmaHttpClient.userAgent}}}, callback);
     }
 
     /**
@@ -66,7 +70,7 @@ export class WilmaHttpClient {
      * @param followRedirectCount How many times a redirect should be allowed (default is 5 times)
      */
     postRequest(url: string, data: any, callback:NeedleCallback, headers:OutgoingHttpHeaders, followRedirectCount:number=5) {
-        post(url, data, {headers:headers, follow:followRedirectCount}, callback);
+        needle.post(url, data, {needle: {headers:{...headers, ...{'user-agent': WilmaHttpClient.userAgent}}, follow:followRedirectCount}}, callback);
     }
 
     /**
@@ -78,7 +82,7 @@ export class WilmaHttpClient {
      * @param followRedirectCount How many times a redirect should be allowed (default is 5 times)
      */
     authenticatedPostRequest(url: string, data: any, callback:NeedleCallback, headers:OutgoingHttpHeaders, followRedirectCount:number=5) {
-        post(url, data, {headers:headers, follow:followRedirectCount, cookies: {"Wilma2SID": this._session}}, callback);
+        needle.post(url, data, {needle: {headers:{...headers, ...{'user-agent': WilmaHttpClient.userAgent}}, follow:followRedirectCount, cookies: {"Wilma2SID": this._session}}}, callback);
     }
 
     set session(value: string) {
