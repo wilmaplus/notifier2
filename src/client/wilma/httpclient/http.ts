@@ -8,6 +8,7 @@ import {URL} from "url";
 import needle, {NeedleCallback, get, post} from "needle"
 import {OutgoingHttpHeaders} from "http";
 import * as retry from "retry"
+import {AppConfig} from "../../../config/app";
 
 /**
  * HTTP Client for requests to Wilma
@@ -31,7 +32,7 @@ export class WilmaHttpClient {
         this._baseUrl = baseUrl;
         this._session = session;
         needle.defaults({
-            user_agent: "WilmaPlusNotifier/"+(global as any).version
+            user_agent: "WilmaPlusNotifier/"+AppConfig.version
         })
     }
 
