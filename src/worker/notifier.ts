@@ -11,7 +11,15 @@ import {AsyncIterator} from "../asynciterator/iterator";
 
 import * as admin from 'firebase-admin';
 import {Storage} from "../storage/storage";
-const wConsole = {log: (msg: string) => {if ((global as any).debug){console.log(msg)}}}
+import * as fs from "fs";
+
+const wConsole = {log: (msg: string) => {
+    if ((global as any).debug || (global as any).log){
+        console.log(msg)
+    }
+}}
+
+
 
 if (!workerData.userId || !workerData.serverUrl || !workerData.session || !workerData.apiSettings || !workerData.dataFolder) {
     console.log("required parameters not found!");
@@ -22,12 +30,22 @@ const userId = workerData.userId;
 const serverUrl = workerData.serverUrl;
 const wilmaSession = workerData.session;
 
+if (workerData.log) {
+    if (!fs.existsSync('logs')) {
+        fs.mkdirSync('logs');
+    }
+    let access = fs.createWriteStream('logs/'+userId+'.log');
+    // @ts-ignore
+    process.stdout.write = process.stderr.write = access.write.bind(access);
+}
+
 process.env.LONG_FILENAMES = workerData.lFN;
 
 // Setting global variables
 (global as any).apiSettings = workerData.apiSettings;
 (global as any).dataFolder = workerData.dataFolder;
 (global as any).debug = workerData.debug;
+(global as any).log = workerData.log;
 
 admin.initializeApp({
     credential: admin.credential.cert(require((global as any).apiSettings.fcmKey))

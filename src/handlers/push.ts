@@ -132,14 +132,14 @@ const startWorkerThread = (id: string, serverUrl: string, session: string, db: D
             apiSettings: (global as any).apiSettings,
             dataFolder: (global as any).dataFolder,
             lFN: process.env.LONG_FILENAMES,
-            debug: (global as any).debug
+            debug: (global as any).debug,
+            log: (global as any).log
         }
     });
     worker.on('error', (err: any) => {
         console.log(err);
     });
     worker.on('message', (msg: any) => {
-;
         try {
             let data = JSON.parse(msg);
             if ((global as any).debug)

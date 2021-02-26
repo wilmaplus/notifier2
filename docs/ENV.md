@@ -2,6 +2,7 @@
 ## Supported environment variables
 - `DEBUG`           Enables debugging and additional logs
 - `DEV`             Changes worker file path for development environment
+- `LOG`             Enables logging of notifier workers to `logs` directory
 - `PORT`            HTTP Server port
 - `PROXY`           When this environment is set, it sets rate-limit configuration to include setting, which tells that this HTTP Server is behind a proxy.
 - `FCM_KEY`         Path to firebase credentials `.json` file

@@ -20,6 +20,7 @@ const rateLimit = require("express-rate-limit");
 
 const DEBUG = process.env.DEBUG || false;
 const DEV = process.env.DEV || false;
+const LOG = process.env.LOG || false;
 const PORT = process.env.PORT || 3001;
 const BEHIND_PROXY = process.env.PROXY || false;
 const FCM_KEY = process.env.FCM_KEY || null;
@@ -40,6 +41,7 @@ require('console-stamp')(console, 'HH:MM:ss.l');
 (global as any).apiSettings = {fcmKey: FCM_KEY, iidKey: IID_KEY, iidUrl: IID_URL, iidPackageName: IID_PKG_NAME};
 (global as any).debug = DEBUG;
 (global as any).dev = DEV;
+(global as any).log = LOG;
 console.log("Wilma Plus Notifier, version "+AppConfig.version);
 
 // Setting data folder
