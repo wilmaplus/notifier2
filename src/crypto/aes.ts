@@ -8,13 +8,23 @@ import {v4} from "uuid";
 export class DecryptResult {
     private _data: Buffer
     private _sessionId: Buffer
+    private _contentHash: Buffer
 
 
-    constructor(data: Buffer, sessionId: Buffer) {
+    constructor(data: Buffer, sessionId: Buffer, contentHash: Buffer) {
         this._data = data;
         this._sessionId = sessionId;
+        this._contentHash = contentHash;
     }
 
+
+    get contentHash(): Buffer {
+        return this._contentHash;
+    }
+
+    set contentHash(value: Buffer) {
+        this._contentHash = value;
+    }
 
     get data(): Buffer {
         return this._data;
@@ -58,7 +68,12 @@ export class AESCipher {
                 return;
             }
             let cipher = crypto.createCipheriv("aes-256-gcm", this.hashedKey, iv);
-            resolve(Buffer.concat([sessionId, iv, cipher.update(data), cipher.final(), cipher.getAuthTag()]));
+            let contentHash = HashUtils.sha1DigestFromBuffer(data);
+            let u = cipher.update(data);
+            let f = cipher.final();
+            let at = cipher.getAuthTag();
+            let buf = Buffer.concat([sessionId, iv, contentHash, u, f, at]);
+            resolve(buf);
         })
     }
 
@@ -66,15 +81,17 @@ export class AESCipher {
         return new Promise<DecryptResult>((resolve) => {
             let sessionBuffer = Buffer.alloc(16);
             let ivBuffer = Buffer.alloc(16);
+            let contentHash = Buffer.alloc(20);
             let tagBuffer = Buffer.alloc(16);
-            let dataBuffer = Buffer.alloc(data.byteLength-48);
+            let dataBuffer = Buffer.alloc(data.byteLength-68);
             data.copy(sessionBuffer, 0, 0, 16);
             data.copy(ivBuffer, 0, 16, 32);
-            data.copy(dataBuffer, 0, 32, data.byteLength-16);
+            data.copy(contentHash, 0, 32, 52);
+            data.copy(dataBuffer, 0, 52, data.byteLength-16);
             data.copy(tagBuffer, 0, data.byteLength-16, data.byteLength);
             let cipher = crypto.createDecipheriv("aes-256-gcm", this.hashedKey, ivBuffer);
             cipher.setAuthTag(tagBuffer);
-            resolve(new DecryptResult(Buffer.concat([cipher.update(dataBuffer), cipher.final()]), sessionBuffer));
+            resolve(new DecryptResult(Buffer.concat([cipher.update(dataBuffer), cipher.final()]), sessionBuffer, contentHash));
         });
     }
 

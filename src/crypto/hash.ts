@@ -22,6 +22,10 @@ export class HashUtils {
         return HashUtils.sha1Hash(content).digest();
     }
 
+    static sha1DigestFromBuffer(content: Buffer): Buffer {
+        return crypto.createHash('sha1').update(content).digest();
+    }
+
     static sha256Digest(content: string): string {
         return HashUtils.sha256Hash(content).digest("hex");
     }
