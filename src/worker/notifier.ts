@@ -12,6 +12,9 @@ import {AsyncIterator} from "../asynciterator/iterator";
 import * as admin from 'firebase-admin';
 import {Storage} from "../storage/storage";
 import * as fs from "fs";
+import {Query} from "../routines/misc/types";
+import {PushKey} from "../db/models/push";
+import {sendNotificationQuery} from "../routines/utils/query_runner";
 
 const wConsole = {log: (msg: string) => {
     if ((global as any).debug || (global as any).log){
@@ -51,19 +54,50 @@ admin.initializeApp({
     credential: admin.credential.cert(require((global as any).apiSettings.fcmKey))
 });
 
+let queryList: Query[] = [];
+
+const finish = () => {
+    queryList = [];
+    wConsole.log("check done, waiting...");
+    // Setting timeout to run after 5 seconds
+    setTimeout(run, 5000);
+};
 
 // Routine function
 const run = () => {
-    wConsole.log("Fetching keys");
-    // Fetching keys from master
-    parentPort?.postMessage(JSON.stringify({request: 'userKeys', params: {userId: userId}}));
+    wilmaClient.checkSession().then(sessionCheck => {
+        wConsole.log("Running routines");
+        new AsyncIterator((item, iterator) => {
+            new item(encryptionKey, sessionId).check(serverUrl, wilmaSession, sessionCheck.userId, sessionCheck.userType).then(queries => {
+                wConsole.log("Ran "+item.publicName);
+                queries.forEach(item => queryList.push(item));
+                iterator.nextItem();
+            }).catch(err => {
+                wConsole.log("error!");
+                wConsole.log(err);
+                setTimeout(() => {process.exit(0)}, 200);
+            })
+        }, routines, () => {
+            if (queryList.length > 0) {
+                wConsole.log("Fetching keys");
+                // Fetching keys from master
+                parentPort?.postMessage(JSON.stringify({request: 'userKeys', params: {userId: userId}}));
+            } else
+                finish();
+        }).start();
+    }).catch(err => {
+        wConsole.log(err);
+        wConsole.log("Unable to validate session, exiting");
+        setTimeout(() => {process.exit(0)}, 200);
+    });
+
 };
 
 parentPort?.on('message', (msgJson) => {
     let msg = JSON.parse(msgJson);
     wConsole.log("[msg] "+msg.type);
     if (msg.type === 'userKeys') {
-        let keys = msg.data;
+        let keys: PushKey[] = msg.data;
         if (keys.length < 1) {
             wConsole.log("No keys, exiting");
             new AsyncIterator((routine, iterator) => {
@@ -78,26 +112,25 @@ parentPort?.on('message', (msgJson) => {
                 setTimeout(() => {process.exit(0)}, 200);
             }).start();
         } else {
-            wilmaClient.checkSession().then(sessionCheck => {
-                wConsole.log("Running routines");
-                new AsyncIterator((item, iterator) => {
-                    new item(encryptionKey, sessionId).check(serverUrl, wilmaSession, keys, sessionCheck.userId, sessionCheck.userType).then(() => {
+            // Iterating queries
+            new AsyncIterator((item, iterator) => {
+                // Iterating push keys
+                new AsyncIterator((key, iterator) => {
+                    if (key.allowedRoutines.includes(item.internal_type)) {
+                        sendNotificationQuery(item, key.key).then(() => {
+                            iterator.nextItem();
+                        }).catch(err => {
+                            wConsole.log(err.toString());
+                            iterator.nextItem();
+                        })
+                    } else
                         iterator.nextItem();
-                    }).catch(err => {
-                        wConsole.log("error!");
-                        wConsole.log(err);
-                        setTimeout(() => {process.exit(0)}, 200);
-                    })
-                }, routines, () => {
-                    wConsole.log("check done, waiting...");
-                    // Setting timeout to run after 5 seconds
-                    setTimeout(run, 5000);
+                }, keys, () => {
+                    iterator.nextItem();
                 }).start();
-            }).catch(err => {
-                wConsole.log(err);
-                wConsole.log("Unable to validate session, exiting");
-                setTimeout(() => {process.exit(0)}, 200);
-            });
+            }, queryList, () => {
+                finish();
+            }).start();
         }
     } else if (msg.type === 'error') {
         throw new Error(msg.data);

@@ -95,6 +95,12 @@ export class AESCipher {
         });
     }
 
+    static dataHash(data: Buffer): Buffer {
+        let contentHash = Buffer.alloc(20);
+        data.copy(contentHash, 0, 32, 52);
+        return contentHash;
+    }
+
     static getSessionBuffer(data: Buffer): Promise<Buffer> {
         return new Promise<Buffer>(resolve => {
             let sessionBuffer = Buffer.alloc(16);

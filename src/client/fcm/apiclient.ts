@@ -17,4 +17,9 @@ export class FCMApiClient {
         let messaging = admin.messaging();
         return messaging.sendToDevice(recipients, {data: data}, {timeToLive: ttl})
     }
+
+    static sendSinglePush(recipients: string, data: any, ttl:number=86400):Promise<MessagingDevicesResponse> {
+        let messaging = admin.messaging();
+        return messaging.sendToDevice(recipients, {data: data}, {timeToLive: ttl})
+    }
 }

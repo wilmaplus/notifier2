@@ -20,7 +20,7 @@ export class Storage {
             if (fs.existsSync(filename))
                 fs.unlinkSync(filename);
             // Encrypting content and writing to a file
-            new AESCipher(encryptionKey).encrypt(Buffer.from(JSON.stringify(content)), sessionId).then((contentBuffer) => {
+            new AESCipher(encryptionKey).encrypt(Storage.contentToBuffer(content), sessionId).then((contentBuffer) => {
                 try {
                     fs.writeFileSync(filePath, contentBuffer);
                     resolve();
@@ -30,6 +30,14 @@ export class Storage {
             }).catch(error => reject(error));
         });
 
+    }
+
+    static contentToBuffer(content: object) {
+        return Buffer.from(JSON.stringify(content))
+    }
+
+    static getContentHash(content: object) {
+        return HashUtils.sha1DigestFromBuffer(this.contentToBuffer(content));
     }
 
     static getSavedData(encryptionKey: string, sessionId: Buffer, fileName: string, userId: string): Promise<object|null> {
@@ -51,6 +59,31 @@ export class Storage {
                                     resolve(JSON.parse(dataBuffer.data.toString('utf-8')));
                                 })
                                 .catch(error => reject(error));
+                        } else
+                            resolve(null);
+                    })
+                    .catch(() => resolve(null))
+            } else {
+                resolve(null);
+            }
+        });
+    }
+
+    static getSavedDataHash(sessionId: Buffer, fileName: string, userId: string): Promise<Buffer|null> {
+        return new Promise<Buffer|null>(resolve => {
+            let filename = fileName+"."+this.hash(userId)+".wplus";
+            // Checking if save directory exists, if not, creating it recursively
+            this.savePathCheck((global as any).dataFolder);
+            // Deleting previous file if saved
+            let filePath = path.join((global as any).dataFolder, filename);
+            if (fs.existsSync(filePath)) {
+                let fileBuffer = fs.readFileSync(filePath);
+                // Checking if sessions match
+                AESCipher.getSessionBuffer(fileBuffer)
+                    .then(extractedId => {
+                        if (extractedId.compare(sessionId) == 0) {
+                            // Get hash
+                            resolve(AESCipher.dataHash(fileBuffer));
                         } else
                             resolve(null);
                     })

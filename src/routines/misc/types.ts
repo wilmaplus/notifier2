@@ -74,8 +74,9 @@ export class Query {
     user_id: string
     user_type: string
     server: string
+    internal_type: string
 
-    constructor(type: string, data: string, payload: any, user_id: number, user_type: number, server: string) {
+    constructor(type: string, data: string, payload: any, user_id: number, user_type: number, server: string, internal_type: string) {
         this.type = type;
         this.data = data;
         // Making them to string, because FCM wants so
@@ -83,5 +84,6 @@ export class Query {
         this.user_id = JSON.stringify(user_id);
         this.user_type = JSON.stringify(user_type);
         this.server = server;
+        this.internal_type = internal_type;
     }
 }

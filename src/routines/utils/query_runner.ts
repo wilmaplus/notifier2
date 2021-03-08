@@ -6,7 +6,7 @@ import {FCMApiClient} from "../../client/fcm/apiclient";
 import {AsyncIterator} from "../../asynciterator/iterator";
 import {Query} from "../misc/types";
 
-export function sendNotificationQueries(queries: Query[], pushIds: string[], fcmApi: FCMApiClient): Promise<void> {
+export function sendNotificationQueries(queries: Query[], pushIds: string[]): Promise<void> {
     return new Promise<void>((resolve, reject) => {
         new AsyncIterator((item, iterator) => {
             FCMApiClient.sendPush(pushIds, item)
@@ -22,5 +22,19 @@ export function sendNotificationQueries(queries: Query[], pushIds: string[], fcm
         }, queries, () => {
             resolve();
         }).start();
+    })
+}
+
+export function sendNotificationQuery(query: Query, pushId: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        FCMApiClient.sendSinglePush(pushId, query)
+            .then((result) => {
+                if (result.failureCount != result.successCount) {
+                    console.log("Some devices failed to be sent: ");
+                    console.log("Failed: "+result.failureCount);
+                    console.log("Succeeded: "+result.successCount);
+                }
+            })
+            .catch((error) => reject(error));
     })
 }

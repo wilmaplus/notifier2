@@ -61,7 +61,7 @@ export class WilmaApiClient {
                         if (!error) {
                             let homepage = (<Homepage> response.body);
                             if (typeof homepage !== 'object') {
-                                reject(new ApiError("Unable to obtain JSON response"));
+                                reject(new ApiError("Unable to obtain JSON response: "+response.body));
                                 return;
                             }
                             // Checking if PrimusId and Type is present. If not, that probably means that session's
