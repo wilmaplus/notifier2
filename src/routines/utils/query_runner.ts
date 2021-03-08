@@ -30,10 +30,11 @@ export function sendNotificationQuery(query: Query, pushId: string): Promise<voi
         FCMApiClient.sendSinglePush(pushId, query)
             .then((result) => {
                 if (result.failureCount != result.successCount) {
-                    console.log("Some devices failed to be sent: ");
+                    console.log("Push: ");
                     console.log("Failed: "+result.failureCount);
                     console.log("Succeeded: "+result.successCount);
                 }
+                resolve();
             })
             .catch((error) => reject(error));
     })

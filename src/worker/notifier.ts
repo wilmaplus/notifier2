@@ -88,7 +88,7 @@ const run = () => {
     }).catch(err => {
         wConsole.log(err);
         wConsole.log("Unable to validate session, exiting");
-        setTimeout(() => {process.exit(0)}, 200);
+        setTimeout(() => {process.exit(0)}, 300);
     });
 
 };
@@ -109,19 +109,19 @@ parentPort?.on('message', (msgJson) => {
                         wConsole.log(error)
                     });
             }, getRoutineNames(), () => {
-                setTimeout(() => {process.exit(0)}, 200);
+                setTimeout(() => {process.exit(0)}, 300);
             }).start();
         } else {
             // Iterating queries
             new AsyncIterator((item, iterator) => {
                 // Iterating push keys
-                new AsyncIterator((key, iterator) => {
+                new AsyncIterator((key, keyIterator) => {
                     if (key.allowedRoutines.includes(item.internal_type)) {
                         sendNotificationQuery(item, key.key).then(() => {
-                            iterator.nextItem();
+                            keyIterator.nextItem();
                         }).catch(err => {
                             wConsole.log(err.toString());
-                            iterator.nextItem();
+                            keyIterator.nextItem();
                         })
                     } else
                         iterator.nextItem();
