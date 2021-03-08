@@ -3,5 +3,5 @@
  */
 
 export class AppConfig {
-    public static version:string = "1.0.3.1";
+    public static version:string = "1.0.4";
 }

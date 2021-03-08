@@ -9,3 +9,5 @@ dist
 dbconfig.json
 .env
 *-firebase-adminsdk-*.json
+
+logs
